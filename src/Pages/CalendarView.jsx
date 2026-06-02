@@ -5,9 +5,10 @@ import CalendarGrid from "../Components/Dashboard/Calender/CalendarGrid";
 import CalendarModal from "../Components/Dashboard/Calender/CalendarModal";
 
 export default function CalendarView() {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 2)); // June 2, 2026
+  // 📆 ফিক্স: ম্যানুয়াল ডেট সরিয়ে সরাসরি ২০২৬ সালের জুন ৩ তারিখ সেট করা হলো
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 3)); 
   const [viewMode, setViewMode] = useState("Month view");
-  const [direction, setDirection] = useState(0); // Animation direction (1 = right, -1 = left)
+  const [direction, setDirection] = useState(0); 
   
   const [events, setEvents] = useState([
     { id: 1, title: "Care: Sami", employee: "Karim Rahman", startDay: 1, endDay: 1, month: 5, year: 2026, time: "09:00 AM - 10:00 AM", color: "bg-orange-50 text-orange-700 border-orange-200" },
@@ -30,10 +31,8 @@ export default function CalendarView() {
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const shortMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   
-  // Dynamically calculate total days in the active month
   const daysInMonthCount = new Date(year, month + 1, 0).getDate();
 
-  // 🔄 Month panel navigator controls
   const handlePrevMonth = () => {
     setDirection(-1);
     setCurrentDate(new Date(year, month - 1, 1));
@@ -44,8 +43,9 @@ export default function CalendarView() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  // ✅ ফিক্স: Today বাটনে ক্লিক করলে এখন নিখুঁতভাবে জুন ৩ তারিখেই ফেরত আসবে
   const handleToday = () => {
-    const today = new Date(2026, 5, 2);
+    const today = new Date(2026, 5, 3);
     setDirection(currentDate.getMonth() > 5 ? -1 : 1);
     setCurrentDate(today);
   };
@@ -67,7 +67,6 @@ export default function CalendarView() {
     } 
   };
   
-  // Header "Add event" button click handler
   const handleAddEventClick = () => { 
     setDragStart(currentDate.getDate()); 
     setDragEnd(currentDate.getDate()); 
@@ -85,7 +84,6 @@ export default function CalendarView() {
     return day >= Math.min(dragStart, dragEnd) && day <= Math.max(dragStart, dragEnd);
   };
 
-  // ✅ Fixed: Accepting calculated time range string from the custom modal form submit event
   const handleCreateEvent = (e, calculatedTimeRange) => {
     e.preventDefault();
     if (!selectedChild || !selectedEmployee) return;
@@ -101,7 +99,7 @@ export default function CalendarView() {
       endDay: Math.max(dragStart, dragEnd), 
       month: month, 
       year: year, 
-      time: calculatedTimeRange, // Maps precise string block e.g., "09:00 AM - 11:00 AM"
+      time: calculatedTimeRange, 
       color: randomColor
     }]);
 
@@ -112,7 +110,6 @@ export default function CalendarView() {
     setIsModalOpen(false);
   };
 
-  // 🎯 Dynamic calendar row array configuration
   const getFilteredDays = () => {
     const activeDay = currentDate.getDate();
     if (viewMode === "Day view") return [activeDay];
@@ -126,7 +123,6 @@ export default function CalendarView() {
 
   return (
     <div className=" select-none p-2 font-sans" onMouseUp={handleMouseUp}>
-      {/* 1. Top Panel Controller Header */}
       <CalendarHeader 
         currentDate={currentDate} 
         monthNames={monthNames} 
@@ -142,12 +138,12 @@ export default function CalendarView() {
         handleAddEventClick={handleAddEventClick}
       />
       
-      {/* 2. Main Calendar Track Panel Grid */}
       <div className="overflow-hidden relative rounded-2xl">
         <CalendarGrid 
+          /* 🎯 viewMode যদি Month ভিউ না হয়, তবে ব্লাঙ্ক স্লট বা অফসেট ট্র্যাকিং ইগনোর করবে */
           filteredDays={getFilteredDays()} 
           events={events} 
-          currentMonth={month} 
+          currentMonth={viewMode === "Month view" ? month : -1} // উইক/ডে ভিউতে অফসেট বন্ধ রাখবে
           currentYear={year} 
           handleMouseDown={handleMouseDown} 
           handleMouseEnter={handleMouseEnter} 
@@ -157,7 +153,6 @@ export default function CalendarView() {
         />
       </div>
 
-      {/* 3. Global Full Screen Overlay Event Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <CalendarModal 

@@ -7,7 +7,10 @@ export default function CalendarHeader({
 }) {
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between pb-5 border-b border-slate-200 bg-white p-4 rounded-2xl shadow-xs">
+      
+      {/* Dynamic left side date banner box */}
       <div className="flex items-center gap-4">
+        {/* ✅ This block dynamically updates to match the current selected day value directly */}
         <div className="flex flex-col items-center justify-center border border-violet-100 rounded-xl bg-violet-50 p-2 min-w-[64px]">
           <span className="text-[10px] font-bold text-violet-700 uppercase">{shortMonthNames[month]}</span>
           <span className="text-xl font-bold">{currentDate.getDate()}</span>

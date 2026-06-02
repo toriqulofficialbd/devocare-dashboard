@@ -6,9 +6,7 @@ export default function CalendarGrid({
   filteredDays, events, currentMonth, currentYear, handleMouseDown, handleMouseEnter, isSelected, direction 
 }) {
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  
-  // মোবাইলে কোন দিনের ডিটেইলস নিচে দেখাবে তা ট্র্যাক করার স্টেট (ডিফল্ট আজকের তারিখ ২)
-  const [activeMobileDay, setActiveMobileDay] = useState(2);
+  const [activeMobileDay, setActiveMobileDay] = useState(3); // ডিফল্ট ৩ তারিখ একটিভ
 
   const variants = {
     enter: (dir) => ({ x: dir > 0 ? 40 : -40, opacity: 0 }),
@@ -16,15 +14,20 @@ export default function CalendarGrid({
     exit: (dir) => ({ x: dir > 0 ? -40 : 40, opacity: 0 })
   };
 
-  // নির্দিষ্ট দিনের সব ইভেন্ট ফিল্টার করার ফাংশন
   const getEventsForDay = (day) => {
     return events.filter(e => day >= e.startDay && day <= e.endDay && e.month === currentMonth && e.year === currentYear);
   };
 
+  // 🔄 👑 ম্যাজিক লজিক: চলতি মাসের ১ তারিখ সপ্তাহের কোন বারে পড়েছে তা বের করা (0 = Sun, 1 = Mon...)
+  const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+  
+  // ফাঁকা ঘরের অ্যারে তৈরি করা
+  const blankSlots = Array.from({ length: firstDayIndex }, (_, i) => i);
+
   return (
     <div className="bg-white border border-[#EAECF0] rounded-2xl shadow-xs overflow-hidden">
       
-      {/* 📅 সপ্তাহের বারগুলোর নাম */}
+      {/* 📅 সপ্তাহের বারের নামসমূহ */}
       <div className="grid grid-cols-7 border-b border-[#EAECF0] bg-white">
         {daysOfWeek.map((day, index) => (
           <div key={index} className="py-2.5 text-center text-[11px] sm:text-xs font-semibold text-[#475467] tracking-wide">
@@ -33,7 +36,7 @@ export default function CalendarGrid({
         ))}
       </div>
 
-      {/* 🧩 ক্যালেন্ডারের মেইন গ্রিড */}
+      {/* 🧩 মেইন অ্যানিমেটেড গ্রিড */}
       <motion.div 
         key={`${currentMonth}-${currentYear}`}
         custom={direction}
@@ -44,6 +47,12 @@ export default function CalendarGrid({
         transition={{ duration: 0.2, ease: "easeInOut" }}
         className="grid grid-cols-7 gap-px bg-[#EAECF0]"
       >
+        {/* 📦 ১. মাসের আগের ফাঁকা ঘরগুলো রেন্ডার করা (যা ১ তারিখকে সোমবারে পুশ করবে) */}
+        {blankSlots.map((_, index) => (
+          <div key={`blank-${index}`} className="min-h-[70px] sm:min-h-[120px] bg-slate-50/50" />
+        ))}
+
+        {/* 📦 ২. আসল তারিখের দিনগুলো রেন্ডার করা */}
         {filteredDays.map((day) => {
           const isDaySelected = isSelected(day);
           const dayEvents = getEventsForDay(day);
@@ -54,21 +63,21 @@ export default function CalendarGrid({
               key={day} 
               onMouseDown={() => {
                 handleMouseDown(day);
-                setActiveMobileDay(day); // মোবাইল ভিউয়ের জন্য একটিভ ডে সেট
+                setActiveMobileDay(day);
               }}
               onMouseEnter={() => handleMouseEnter(day)}
               className={`min-h-[70px] sm:min-h-[120px] p-1.5 sm:p-2 transition-all flex flex-col relative cursor-cell bg-white ${
                 isDaySelected ? "!bg-violet-50/40" : ""
               } ${isMobileActive ? "ring-2 ring-violet-600 ring-inset z-10" : ""}`}
             >
-              {/* তারিখ সংখ্যা */}
+              {/* তারিখ */}
               <span className={`text-xs font-semibold mb-1 ${
                 isDaySelected ? "text-violet-700 font-bold" : "text-[#475467]"
               }`}>
                 {day}
               </span>
               
-              {/* 💻 ডেস্কটপ ভিউ ইভেন্ট (ল্যাপটপে লম্বা ব্যানার দেখাবে, মোবাইলে হাইড থাকবে) */}
+              {/* 💻 ল্যাপটপ ভিউ ব্যানার */}
               <div className="hidden sm:block flex-1 space-y-1 overflow-y-auto">
                 {dayEvents.map(event => {
                   const isFirstDay = day === event.startDay;
@@ -96,7 +105,7 @@ export default function CalendarGrid({
                 })}
               </div>
 
-              {/* 📱 মোবাইল ভিউ ইভেন্ট ইন্ডিকেটর (মোবাইলে শুধু সুন্দর রঙিন ডট দেখাবে) */}
+              {/* 📱 মোবাইল ভিউ ডট ইন্ডিকেটর */}
               <div className="flex sm:hidden flex-wrap gap-0.5 justify-center mt-auto pb-1">
                 {dayEvents.map((event) => (
                   <span 
@@ -113,7 +122,7 @@ export default function CalendarGrid({
         })}
       </motion.div>
 
-      {/* 📱 মোবাইল এজেন্ডা সেকশন (শুধুমাত্র মোবাইল স্ক্রিনে নিচে সুন্দর লিস্ট দেখাবে) */}
+      {/* 📱 মোবাইল এজেন্ডা */}
       <div className="block sm:hidden border-t border-[#EAECF0] bg-[#F9FAFB] p-4">
         <div className="flex justify-between items-center mb-3">
           <h4 className="text-xs font-bold text-[#344054] uppercase tracking-wider">

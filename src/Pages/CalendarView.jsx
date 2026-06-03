@@ -1,28 +1,32 @@
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import CalendarHeader from "../Components/Dashboard/Calender/CalendarHeader";
-import CalendarGrid from "../Components/Dashboard/Calender/CalendarGrid";
-import CalendarModal from "../Components/Dashboard/Calender/CalendarModal";
+import CalendarHeader from "../Components/Calender/CalendarHeader";
+import CalendarGrid from "../Components/Calender/CalendarGrid";
+import CalendarModal from "../Components/Calender/CalendarModal";
 
 export default function CalendarView() {
-  // 📆 ফিক্স: ম্যানুয়াল ডেট সরিয়ে সরাসরি ২০২৬ সালের জুন ৩ তারিখ সেট করা হলো
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 3)); 
+  // --------------------------------------------------------------------
+  //  1. All State and Reference Hook Hooks Grouped (Declares Together)
+  // --------------------------------------------------------------------
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 3)); // Fixed to June 3, 2026
   const [viewMode, setViewMode] = useState("Month view");
   const [direction, setDirection] = useState(0); 
-  
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(null);
+  const [dragEnd, setDragEnd] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedChild, setSelectedChild] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("");
+
   const [events, setEvents] = useState([
     { id: 1, title: "Care: Sami", employee: "Karim Rahman", startDay: 1, endDay: 1, month: 5, year: 2026, time: "09:00 AM - 10:00 AM", color: "bg-orange-50 text-orange-700 border-orange-200" },
     { id: 2, title: "Care: Aria", employee: "Sultana Begum", startDay: 2, endDay: 4, month: 5, year: 2026, time: "04:00 PM - 05:00 PM", color: "bg-violet-50 text-violet-700 border-violet-200" },
   ]);
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState(null);
-  const [dragEnd, setDragEnd] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  const [selectedChild, setSelectedChild] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState("");
-
+  // --------------------------------------------------------------------
+  //  2. Dataset Arrays and Static Date Constants Configuration
+  // --------------------------------------------------------------------
   const employees = ["Karim Rahman (Therapist)", "Sultana Begum (Nurse)", "Abir Hasan (Caregiver)"];
   const children = ["Sami (Autism Spectrum)", "Aria (Down Syndrome)", "Faiaz (Cerebral Palsy)"];
   
@@ -30,9 +34,22 @@ export default function CalendarView() {
   const month = currentDate.getMonth();
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const shortMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  
   const daysInMonthCount = new Date(year, month + 1, 0).getDate();
 
+  // --------------------------------------------------------------------
+  //  3. Dynamic Filtering Logic (Computes underlying active search values)
+  // --------------------------------------------------------------------
+  const filteredEvents = events.filter(event => {
+    const normalizedSearch = searchTerm.toLowerCase();
+    return (
+      event.title.toLowerCase().includes(normalizedSearch) ||
+      event.employee.toLowerCase().includes(normalizedSearch)
+    );
+  });
+
+  // --------------------------------------------------------------------
+  //  4. Event Handler Operations and Grid Track Callbacks
+  // --------------------------------------------------------------------
   const handlePrevMonth = () => {
     setDirection(-1);
     setCurrentDate(new Date(year, month - 1, 1));
@@ -43,7 +60,6 @@ export default function CalendarView() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
-  // ✅ ফিক্স: Today বাটনে ক্লিক করলে এখন নিখুঁতভাবে জুন ৩ তারিখেই ফেরত আসবে
   const handleToday = () => {
     const today = new Date(2026, 5, 3);
     setDirection(currentDate.getMonth() > 5 ? -1 : 1);
@@ -122,8 +138,11 @@ export default function CalendarView() {
   };
 
   return (
-    <div className=" select-none p-2 font-sans" onMouseUp={handleMouseUp}>
-      <CalendarHeader 
+    <div className="select-none p-2 font-sans" onMouseUp={handleMouseUp}>
+      {/* 1. Header Toolbar Interface component panel */}
+      <CalendarHeader
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm} 
         currentDate={currentDate} 
         monthNames={monthNames} 
         shortMonthNames={shortMonthNames} 
@@ -138,12 +157,12 @@ export default function CalendarView() {
         handleAddEventClick={handleAddEventClick}
       />
       
+      {/* 2. Main Synchronized Schedule Canvas Grid Wrapper */}
       <div className="overflow-hidden relative rounded-2xl">
         <CalendarGrid 
-          /* 🎯 viewMode যদি Month ভিউ না হয়, তবে ব্লাঙ্ক স্লট বা অফসেট ট্র্যাকিং ইগনোর করবে */
           filteredDays={getFilteredDays()} 
-          events={events} 
-          currentMonth={viewMode === "Month view" ? month : -1} // উইক/ডে ভিউতে অফসেট বন্ধ রাখবে
+          events={filteredEvents} // ✅ Fixed: Receives only matched filter array entries smoothly
+          currentMonth={viewMode === "Month view" ? month : -1} 
           currentYear={year} 
           handleMouseDown={handleMouseDown} 
           handleMouseEnter={handleMouseEnter} 
@@ -153,6 +172,7 @@ export default function CalendarView() {
         />
       </div>
 
+      {/* 3. Global Dynamic Focus Trap Forms Overlay Popups Container */}
       <AnimatePresence>
         {isModalOpen && (
           <CalendarModal 

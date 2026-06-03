@@ -6,7 +6,7 @@ export default function CalendarGrid({
   filteredDays, events, currentMonth, currentYear, handleMouseDown, handleMouseEnter, isSelected, direction 
 }) {
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const [activeMobileDay, setActiveMobileDay] = useState(3); // ডিফল্ট ৩ তারিখ একটিভ
+  const [activeMobileDay, setActiveMobileDay] = useState(3);
 
   const variants = {
     enter: (dir) => ({ x: dir > 0 ? 40 : -40, opacity: 0 }),
@@ -18,16 +18,13 @@ export default function CalendarGrid({
     return events.filter(e => day >= e.startDay && day <= e.endDay && e.month === currentMonth && e.year === currentYear);
   };
 
-  // 🔄 👑 ম্যাজিক লজিক: চলতি মাসের ১ তারিখ সপ্তাহের কোন বারে পড়েছে তা বের করা (0 = Sun, 1 = Mon...)
   const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
-  
-  // ফাঁকা ঘরের অ্যারে তৈরি করা
   const blankSlots = Array.from({ length: firstDayIndex }, (_, i) => i);
 
   return (
     <div className="bg-white border border-[#EAECF0] rounded-2xl shadow-xs overflow-hidden">
       
-      {/* 📅 সপ্তাহের বারের নামসমূহ */}
+      {/* Weekday Labels Header Row */}
       <div className="grid grid-cols-7 border-b border-[#EAECF0] bg-white">
         {daysOfWeek.map((day, index) => (
           <div key={index} className="py-2.5 text-center text-[11px] sm:text-xs font-semibold text-[#475467] tracking-wide">
@@ -36,7 +33,7 @@ export default function CalendarGrid({
         ))}
       </div>
 
-      {/* 🧩 মেইন অ্যানিমেটেড গ্রিড */}
+      {/* Main Animated Calendar Cells Grid */}
       <motion.div 
         key={`${currentMonth}-${currentYear}`}
         custom={direction}
@@ -47,12 +44,12 @@ export default function CalendarGrid({
         transition={{ duration: 0.2, ease: "easeInOut" }}
         className="grid grid-cols-7 gap-px bg-[#EAECF0]"
       >
-        {/* 📦 ১. মাসের আগের ফাঁকা ঘরগুলো রেন্ডার করা (যা ১ তারিখকে সোমবারে পুশ করবে) */}
+        {/* Render preceding blank calendar offset block slots */}
         {blankSlots.map((_, index) => (
           <div key={`blank-${index}`} className="min-h-[70px] sm:min-h-[120px] bg-slate-50/50" />
         ))}
 
-        {/* 📦 ২. আসল তারিখের দিনগুলো রেন্ডার করা */}
+        {/* Render true dynamic runtime monthly date cell blocks */}
         {filteredDays.map((day) => {
           const isDaySelected = isSelected(day);
           const dayEvents = getEventsForDay(day);
@@ -70,14 +67,14 @@ export default function CalendarGrid({
                 isDaySelected ? "!bg-violet-50/40" : ""
               } ${isMobileActive ? "ring-2 ring-violet-600 ring-inset z-10" : ""}`}
             >
-              {/* তারিখ */}
-              <span className={`text-xs font-semibold mb-1 ${
+              {/* ✅ Calendar Date Numbers: Centered on mobile text-center, left-aligned on desktop sm:text-left */}
+              <span className={`text-xs font-semibold mb-1 text-center sm:text-left ${
                 isDaySelected ? "text-violet-700 font-bold" : "text-[#475467]"
               }`}>
                 {day}
               </span>
               
-              {/* 💻 ল্যাপটপ ভিউ ব্যানার */}
+              {/* Desktop View Banner Ribbon UI Layout Row */}
               <div className="hidden sm:block flex-1 space-y-1 overflow-y-auto">
                 {dayEvents.map(event => {
                   const isFirstDay = day === event.startDay;
@@ -105,7 +102,7 @@ export default function CalendarGrid({
                 })}
               </div>
 
-              {/* 📱 মোবাইল ভিউ ডট ইন্ডিকেটর */}
+              {/* Mobile View Dynamic Micro Dot Indicators */}
               <div className="flex sm:hidden flex-wrap gap-0.5 justify-center mt-auto pb-1">
                 {dayEvents.map((event) => (
                   <span 
@@ -122,7 +119,7 @@ export default function CalendarGrid({
         })}
       </motion.div>
 
-      {/* 📱 মোবাইল এজেন্ডা */}
+      {/* Mobile Agenda List Drawer Workspace Container */}
       <div className="block sm:hidden border-t border-[#EAECF0] bg-[#F9FAFB] p-4">
         <div className="flex justify-between items-center mb-3">
           <h4 className="text-xs font-bold text-[#344054] uppercase tracking-wider">

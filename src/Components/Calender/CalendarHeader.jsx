@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
 
 export default function CalendarHeader({ 
   currentDate, monthNames, shortMonthNames, month, year, daysInMonthCount,
-  viewMode, setViewMode, handlePrevMonth, handleNextMonth, handleToday, handleAddEventClick 
+  viewMode, setViewMode, handlePrevMonth, handleNextMonth, handleToday, handleAddEventClick,searchTerm, setSearchTerm 
 }) {
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between pb-5 border-b border-slate-200 bg-white p-4 rounded-2xl shadow-xs">
@@ -29,7 +29,13 @@ export default function CalendarHeader({
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-          <input type="text" placeholder="Search..." className="pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-violet-500" />
+          <input 
+              type="text" 
+              placeholder="Search child or staff..." 
+              value={searchTerm} // 👈 Controlled input binding
+              onChange={(e) => setSearchTerm(e.target.value)} // 👈 Instant state mutator trigger
+              className="pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-violet-500 w-40 sm:w-48 transition-all" 
+            />
         </div>
 
         <div className="inline-flex border border-slate-200 rounded-xl overflow-hidden bg-white shadow-xs">

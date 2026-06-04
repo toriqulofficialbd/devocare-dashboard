@@ -18,6 +18,8 @@ export default function CalendarView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedChild, setSelectedChild] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [editingEventId, setEditingEventId] = useState(null); // 👑 এডিটিং ট্র্যাক আইডি
+  const [draggedEventId, setDraggedEventId] = useState(null);
 
   const [events, setEvents] = useState([
     { id: 1, title: "Care: Sami", employee: "Karim Rahman", startDay: 1, endDay: 1, month: 5, year: 2026, time: "09:00 AM - 10:00 AM", startHour: 9, durationHours: 1, color: "bg-orange-50 text-orange-700 border-orange-200" },
@@ -51,15 +53,38 @@ export default function CalendarView() {
   });
 
 
-  const handlePrevMonth = () => {
+   const handlePrevMonth = () => {
     setDirection(-1);
-    setCurrentDate(new Date(year, month - 1, 1));
+    
+    if (viewMode === "Month view") {
+      setCurrentDate(new Date(year, month - 1, 1)); // ১ মাস পেছনে যাবে
+    } else if (viewMode === "Week view") {
+      const prevWeek = new Date(currentDate);
+      prevWeek.setDate(prevWeek.getDate() - 7); // ১ সপ্তাহ পেছনে যাবে
+      setCurrentDate(prevWeek);
+    } else if (viewMode === "Day view") {
+      const prevDay = new Date(currentDate);
+      prevDay.setDate(prevDay.getDate() - 1); // ১ দিন পেছনে যাবে
+      setCurrentDate(prevDay);
+    }
   };
 
   const handleNextMonth = () => {
     setDirection(1);
-    setCurrentDate(new Date(year, month + 1, 1));
+    
+    if (viewMode === "Month view") {
+      setCurrentDate(new Date(year, month + 1, 1)); // ১ মাস সামনে যাবে
+    } else if (viewMode === "Week view") {
+      const nextWeek = new Date(currentDate);
+      nextWeek.setDate(nextWeek.getDate() + 7); // ১ সপ্তাহ সামনে যাবে
+      setCurrentDate(nextWeek);
+    } else if (viewMode === "Day view") {
+      const nextDay = new Date(currentDate);
+      nextDay.setDate(nextDay.getDate() + 1); // ১ দিন সামনে যাবে
+      setCurrentDate(nextDay);
+    }
   };
+
 
   const handleToday = () => {
     const today = new Date(2026, 5, 3);
@@ -83,6 +108,80 @@ export default function CalendarView() {
       setIsModalOpen(true); 
     } 
   };
+
+  // 👑 ফিচার ২: কার্ডে ক্লিক করলে মডাল প্রি-ফিল্ড হয়ে এডিট মুডে ওপেন হবে
+  const handleEventClick = (eventObj) => {
+    setEditingEventId(eventObj.id);
+    // টাইটেল থেকে বাচ্চার নাম আলাদা করা
+    const childName = eventObj.title.replace("Care: ", "").trim();
+    setSelectedChild(childName);
+    setSelectedEmployee(eventObj.employee);
+    
+    setDragStart(eventObj.startDay);
+    setDragEnd(eventObj.endDay);
+    setIsModalOpen(true);
+  };
+
+  // 👑 👑 👑 ফিচার ৩: ইভেন্ট ড্র্যাগ অ্যান্ড drop রিসেডিউল ইঞ্জিন
+  const handleEventDragStart = (eventId) => {
+    setDraggedEventId(eventId);
+  };
+
+    // 👑 ২ নম্বর ধাপের চূড়ান্ত ম্যাজিক ফিক্স: উইক ও ডে ভিউর লাইভ ড্র্যাগ অ্যান্ড ড্রপ মুভিং এবং রিসেডিউল ইঞ্জিন সচল করা হলো
+  const handleEventDrop = (targetDay, targetHour = null) => {
+    if (!draggedEventId) return;
+
+    setEvents((prevEvents) =>
+      prevEvents.map((ev) => {
+        if (ev.id === draggedEventId) {
+          // 👑 ডাইনামিক টাইপ কাস্টিং সেফগার্ড: অবজেক্ট বা নরমাল নাম্বার—উভয় ফরম্যাট থেকেই পিউর সংখ্যা বের করা
+          let updatedDay = ev.startDay;
+          let updatedMonth = ev.month;
+          let updatedYear = ev.year;
+
+          if (targetDay && typeof targetDay === "object") {
+            updatedDay = targetDay.day !== undefined ? targetDay.day : targetDay.getDate();
+            updatedMonth = targetDay.month !== undefined ? targetDay.month : targetDay.getMonth();
+            updatedYear = targetDay.year !== undefined ? targetDay.year : targetDay.getFullYear();
+          } else if (targetDay) {
+            updatedDay = targetDay;
+          }
+
+          let updatedStartHour = ev.startHour;
+          let updatedTime = ev.time;
+
+          // ঘণ্টার নতুন পজিশন ও টেক্সট স্ট্রিং ফরম্যাটার সিঙ্ক
+          if (targetHour !== null) {
+            updatedStartHour = Number(targetHour);
+            const endH = updatedStartHour + ev.durationHours;
+            
+            const formatHourString = (h) => {
+              if (h === 0 || h === 24) return "12:00 AM";
+              if (h === 12) return "12:00 PM";
+              return h > 12 ? `${h - 12}:00 PM` : `${h}:00 AM`;
+            };
+            updatedTime = `${formatHourString(updatedStartHour)} - ${formatHourString(endH)}`;
+          }
+
+          // নতুন ডেটা ম্যাপ অবজেক্ট রিটার্ন (পুরোনো জায়গা থেকে অটো মুছে নতুন ঘরে শিফট হবে)
+          return { 
+            ...ev, 
+            startDay: Number(updatedDay), 
+            endDay: Number(updatedDay), 
+            month: Number(updatedMonth),
+            year: Number(updatedYear),
+            startHour: Number(updatedStartHour),
+            time: updatedTime
+          };
+        }
+        return ev;
+      })
+    );
+    
+    // ড্র্যাগড আইডি ক্লিনিং ও রিলিজ
+    setDraggedEventId(null);
+  };
+
   
   const handleAddEventClick = () => { 
     setDragStart(currentDate.getDate()); 
@@ -98,75 +197,105 @@ export default function CalendarView() {
   };
 
   // 👑 লজিক ফিক্স ১: অবজেক্ট এবং সাধারণ নাম্বার—উভয় প্রকার তারিখ সিঙ্কের জন্য ইউনিভার্সাল সেফগার্ড
+    // 👑 পরিবর্তন ১: আপনার ফাইলের আনুমানিক ৭০ নম্বর লাইনে থাকা 'isSelected' ফাংশনটি পরিবর্তন করুন:
   const isSelected = (day) => {
     if (!dragStart || !dragEnd) return false;
-    const startNum = dragStart instanceof Date ? dragStart.getDate() : (typeof dragStart === "object" ? dragStart.day : dragStart);
-    const endNum = dragEnd instanceof Date ? dragEnd.getDate() : (typeof dragEnd === "object" ? dragEnd.day : dragEnd);
+    
+    // উইক বা ডে ভিউ থেকে অবজেক্ট আসলে .day রিড করবে, মান্থ ভিউ থেকে আসলে সরাসরি নম্বর রিড করবে
+    const startNum = typeof dragStart === "object" ? dragStart.day : dragStart;
+    const endNum = typeof dragEnd === "object" ? dragEnd.day : dragEnd;
+    
     return day >= Math.min(startNum, endNum) && day <= Math.max(startNum, endNum);
   };
 
+
   // 👑 👑 লজিক ফিক্স ২: উইক ভিউ থেকে আসা পিউর ডেট অবজেক্ট থেকে ডাইনামিকালি সঠিক দিন ও মাস এক্সট্রাক্ট করার মাস্টার ইঞ্জিন
+    
+    // 👑 পরিবর্তন ২: আপনার ফাইলের আনুমানিক ১০৫ নম্বর লাইনে থাকা 'handleCreateEvent' ফাংশনটি পরিবর্তন করুন:
   const handleCreateEvent = (e, calculatedTimeRange) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!selectedChild || !selectedEmployee) return;
 
-    const colors = ["bg-violet-50 text-violet-700 border-violet-200", "bg-teal-50 text-teal-700 border-teal-200", "bg-orange-50 text-orange-700 border-orange-200"];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    // মডাল থেকে সাবমিট হয়ে আসা নতুন টাইম টেক্সট (যেমন: "02:00 PM - 03:00 PM")
+    const finalTimeText = calculatedTimeRange || "10:00 AM - 11:00 AM";
 
-    let targetDay = currentDate.getDate();
-    let targetMonth = month; 
-    let targetYear = year;
-
-    // 🎯 কনসোলে পাওয়া ডেট অবজেক্ট ট্র্যাক করার চূড়ান্ত ম্যাজিক লজিক:
-    if (dragStart instanceof Date) {
-      targetDay = dragStart.getDate();
-      targetMonth = dragStart.getMonth(); // মে এর ঘরে মে (4), জুনের ঘরে জুন (5) অটো ডিটেক্ট করবে
-      targetYear = dragStart.getFullYear();
-    } else if (dragStart && typeof dragStart === "object") {
-      targetDay = dragStart.day !== undefined ? dragStart.day : targetDay;
-      targetMonth = dragStart.month !== undefined ? dragStart.month : targetMonth;
-      targetYear = dragStart.year !== undefined ? dragStart.year : targetYear;
-    } else if (dragStart) {
-      targetDay = dragStart;
+    // এএম/পিএম স্ট্রিং থেকে ২৪ ঘণ্টার ডিজিটাল আওয়ার ইনডেক্স বের করার ইউনিভার্সাল লজিক
+    let extractedStartHour = 10;
+    const timeParts = finalTimeText.split("-")[0].trim();
+    const matches = timeParts.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (matches) {
+      let h = parseInt(matches[1], 10);
+      const period = matches[3].toUpperCase();
+      if (period === "PM" && h < 12) h += 12;
+      if (period === "AM" && h === 12) h = 0;
+      extractedStartHour = h;
     }
 
-    const startH = viewMode === "Month view" ? 10 : weekDragHours.start;
-    const endH = viewMode === "Month view" ? 11 : weekDragHours.end;
-    const duration = Math.max(0.5, endH - startH);
+    if (editingEventId) {
+      // এডিট মুড সেভ লজিক (আগের মতোই থাকবে)
+      setEvents((prev) => prev.map(ev => {
+        if (ev.id === editingEventId) {
+          return { ...ev, title: `Care: ${selectedChild}`, employee: selectedEmployee, time: finalTimeText, startHour: Number(extractedStartHour) };
+        }
+        return ev;
+      }));
+    } else {
+      // 👑 নতুন ইভেন্ট তৈরির সময় ডাইনামিক ডেট এবং টাইম রেঞ্জ সিঙ্ক লজিক
+      const colors = ["bg-violet-50 text-violet-700 border-violet-200", "bg-teal-50 text-teal-700 border-teal-200", "bg-orange-50 text-orange-700 border-orange-200"];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const formatHourString = (h) => {
-      if (h === 0 || h === 24) return "12:00 AM";
-      if (h === 12) return "12:00 PM";
-      return h > 12 ? `${h - 12}:00 PM` : `${h}:00 AM`;
-    };
+      const isTimelineView = viewMode === "Week view" || viewMode === "Day view";
+      
+      // শুরুর দিন ও শেষের দিন আলাদা করা (৩ থেকে ৭ তারিখ লকিং মেকানিজম)
+      const startDayNum = typeof dragStart === "object" ? dragStart.day : (dragStart || currentDate.getDate());
+      const endDayNum = typeof dragEnd === "object" ? (dragEnd.endDay || dragEnd.day) : (dragEnd || currentDate.getDate());
 
-    const finalTimeText = viewMode === "Month view" 
-      ? (calculatedTimeRange || "10:00 AM - 11:00 AM") 
-      : `${formatHourString(startH)} - ${formatHourString(endH)}`;
+      // উইক/ডে ভিউতে গ্রিডের টানা সময় লক করবে, মান্থ ভিউতে মডালের ড্রপডাউন সময় লক করবে
+      const startH = isTimelineView && weekDragHours ? weekDragHours.start : extractedStartHour;
+      const endH = isTimelineView && weekDragHours ? weekDragHours.end : (extractedStartHour + 1);
+      const duration = Math.max(0.5, endH - startH);
 
-    const newCreatedEvent = {
-      id: Date.now(), 
-      title: `Care: ${selectedChild}`, 
-      employee: selectedEmployee,
-      startDay: Number(targetDay), 
-      endDay: Number(targetDay), 
-      month: Number(targetMonth), 
-      year: Number(targetYear), 
-      time: finalTimeText, 
-      startHour: startH, 
-      durationHours: duration,
-      color: randomColor
-    };
+      const formatHourString = (h) => {
+        if (h === 0 || h === 24) return "12:00 AM";
+        if (h === 12) return "12:00 PM";
+        return h > 12 ? `${h - 12}:00 PM` : `${h}:00 AM`;
+      };
 
-    setEvents((prev) => [...prev, newCreatedEvent]);
+      const creationTimeText = isTimelineView 
+        ? `${formatHourString(startH)} - ${formatHourString(endH)}`
+        : finalTimeText;
 
-    // ফরম এবং মডাল মেমোরি রিসেট
+      const newCreatedEvent = {
+        id: Date.now(), 
+        title: `Care: ${selectedChild}`, 
+        employee: selectedEmployee,
+        startDay: Number(startDayNum), 
+        endDay: Number(endDayNum), // 👈 এখন ৩ থেকে ৭ তারিখ পর্যন্ত পুরো কলাম রেঞ্জ ডাটাবেজে লক হবে [▲]
+        month: Number(month), 
+        year: Number(year), 
+        time: creationTimeText, 
+        startHour: startH, 
+        durationHours: duration,
+        color: randomColor
+      };
+
+      setEvents((prev) => [...prev, newCreatedEvent]);
+    }
+
+    // স্টেট ও মডাল রিসেট
     setSelectedChild(""); 
     setSelectedEmployee(""); 
     setDragStart(null); 
     setDragEnd(null); 
+    setEditingEventId(null);
     setIsModalOpen(false);
   };
+
+
+
+
+
+
 
   const getFilteredDays = () => {
     const activeDay = currentDate.getDate();
@@ -180,15 +309,20 @@ export default function CalendarView() {
   };
 
   // 👑 লজিক ফিক্স ৩: মডাল হেডার ডেট টেক্সট প্রিন্ট করার জন্য ডেট অবজেক্ট সেফগার্ড মেথড
-  const getModalDayDisplay = () => {
-    if (dragStart instanceof Date) return dragStart.getDate();
+    // 👑 পরিবর্তন ৩: আপনার ফাইলের আনুমানিক ১৫৫ নম্বর লাইনের দিকে থাকা 'getModalDayDisplay' ফাংশনটি মুছে এই ২টি ছোট ফাংশন বসিয়ে দিন:
+  const getModalStartDay = () => {
     if (dragStart && typeof dragStart === "object") return dragStart.day;
-    if (dragStart) return dragStart;
-    return currentDate.getDate();
+    return dragStart || currentDate.getDate();
   };
 
+  const getModalEndDay = () => {
+    if (dragEnd && typeof dragEnd === "object") return dragEnd.endDay || dragEnd.day;
+    return dragEnd || currentDate.getDate();
+  };
+
+
   return (
-    <div className="select-none p-2 font-sans" onMouseUp={handleMouseUp}>
+    <div className="select-none p-2  font-sans" onMouseUp={handleMouseUp}>
       <CalendarHeader
        searchTerm={calendarSearch} 
         setSearchTerm={setCalendarSearch}
@@ -221,6 +355,9 @@ export default function CalendarView() {
           viewMode={viewMode} 
           setWeekDragHours={setWeekDragHours} 
           setCurrentDate={setCurrentDate} 
+          handleEventClick={handleEventClick}
+          handleEventDragStart={handleEventDragStart}
+          handleEventDrop={handleEventDrop}
         />
       </div>
 
@@ -228,8 +365,8 @@ export default function CalendarView() {
         {isModalOpen && (
           <CalendarModal 
             isModalOpen={isModalOpen} 
-            dragStart={getModalDayDisplay()} 
-            dragEnd={getModalDayDisplay()} 
+            dragStart={getModalStartDay()} 
+            dragEnd={getModalEndDay()} 
             handleCreateEvent={handleCreateEvent} 
             closeModal={closeModal} 
             selectedChild={selectedChild} 
@@ -238,6 +375,8 @@ export default function CalendarView() {
             setSelectedEmployee={setSelectedEmployee} 
             childrenList={children} 
             employees={employees}
+             viewMode={viewMode}
+             isEditing={!!editingEventId}
           />
         )}
       </AnimatePresence>

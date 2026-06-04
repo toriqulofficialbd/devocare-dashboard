@@ -3,7 +3,7 @@ import DayTimeline from "./DayTimeline";
 import MiniCalendar from "./MiniCalendar";
 
 export default function DayViewGrid({ 
-  events, currentMonth, currentYear, currentDate, setCurrentDate, handleMouseDown 
+  events, currentMonth, currentYear, currentDate, setCurrentDate, handleMouseDown ,handleMouseUp, setWeekDragHours,handleEventClick,handleEventDragStart,handleEventDrop
 }) {
   // ক্লিক করা ডাইনামিক ডেটের কারেন্ট ইভেন্ট ফিল্টার করা
   const activeDayEvents = events.filter(e => 
@@ -22,6 +22,11 @@ export default function DayViewGrid({
         currentYear={currentYear}
         activeDayEvents={activeDayEvents}
         handleMouseDown={handleMouseDown}
+        handleMouseUp={handleMouseUp}
+        setWeekDragHours={setWeekDragHours}
+        handleEventClick={handleEventClick}
+         handleEventDragStart={handleEventDragStart}
+          handleEventDrop={handleEventDrop}
       />
 
       {/* 👑 ২. ডানপাশের প্রিমিয়াম মিনি ড্যাশবোর্ড ক্যালেন্ডার সাব-কম্পোনেন্ট */}

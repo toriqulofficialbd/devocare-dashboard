@@ -1,11 +1,11 @@
 import  { useState } from "react";
-import MonthViewGrid from "./MonthViewGrid";
+import MonthViewGrid from "./MonthViewGrid/MonthViewGrid";
 import WeekViewGrid from "./WeekViewGrid/WeekViewGrid"; 
 import DayViewGrid from "./DayViewGrid/DayViewGrid"; // 👑 ১. নতুন ডে ভিউ গ্রিড ইম্পোর্ট করা হলো
 
 export default function CalendarGrid({ 
   filteredDays, events, currentMonth, currentYear, handleMouseDown, handleMouseEnter, handleMouseUp, isSelected, direction, 
-  viewMode = "Month view", currentDate = new Date(), setCurrentDate, setWeekDragHours // 👑 setCurrentDate রিসিভ করা হলো
+  viewMode = "Month view", currentDate = new Date(), setCurrentDate, setWeekDragHours, handleEventClick, handleEventDragStart, handleEventDrop // 👑 setCurrentDate রিসিভ করা হলো
 }) {
   const [activeMobileDay, setActiveMobileDay] = useState(currentDate.getDate());
 
@@ -31,6 +31,9 @@ export default function CalendarGrid({
           handleMouseUp={handleMouseUp} 
           setWeekDragHours={setWeekDragHours} 
           filteredDays={filteredDays}
+          handleEventClick={handleEventClick} 
+          handleEventDragStart={handleEventDragStart}
+           handleEventDrop={handleEventDrop}
         />
       ) : viewMode === "Week view" ? (
         <WeekViewGrid 
@@ -40,7 +43,10 @@ export default function CalendarGrid({
           currentDate={currentDate} 
           handleMouseDown={handleMouseDown} 
           handleMouseUp={handleMouseUp} 
-          setWeekDragHours={setWeekDragHours} 
+          setWeekDragHours={setWeekDragHours}
+          handleEventClick={handleEventClick}
+           handleEventDragStart={handleEventDragStart}
+            handleEventDrop={handleEventDrop} 
         />
       ) : (
         <>
@@ -55,6 +61,10 @@ export default function CalendarGrid({
             direction={direction} blankSlots={blankSlots} isSelected={isSelected} 
             getEventsForDay={getEventsForDay} handleMouseDown={handleMouseDown} 
             handleMouseEnter={handleMouseEnter} activeMobileDay={activeMobileDay} setActiveMobileDay={setActiveMobileDay} 
+             handleEventClick={handleEventClick}
+           handleEventDragStart={handleEventDragStart}
+            handleEventDrop={handleEventDrop}
+            events={events}
           />
         </>
       )}

@@ -6,7 +6,7 @@ export default function CalendarHeader({
   viewMode, setViewMode, handlePrevMonth, handleNextMonth, handleToday, handleAddEventClick,searchTerm, setSearchTerm 
 }) {
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between pb-5 border-b border-slate-200 bg-white p-4 rounded-2xl shadow-xs">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-5 pb-5 border-b border-slate-200 bg-white p-4 rounded-2xl shadow-xs">
       
       {/* Dynamic left side date banner box */}
       <div className="flex items-center gap-4">

@@ -12,25 +12,33 @@ export default function CalendarModal({
   selectedEmployee, 
   setSelectedEmployee,
   childrenList = [], 
-  employees = []     
+  employees = [],
+  viewMode = "Month view",
+  isEditing = false
 }) {
   
-  // Local state slots for precise trendy clock selections
   const [startTime, setStartTime] = useState("09:00 AM");
   const [endTime, setEndTime] = useState("10:00 AM");
 
   if (!isModalOpen || !dragStart || !dragEnd) return null;
 
-  // Time options array for clean dropdown select interface
   const timeSlots = [
     "07:00 AM", "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
     "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"
   ];
 
+  // 👑 ১. ভিউ মোড ট্র্যাকিং কন্ডিশন (Week বা Day ভিউ কি না চেক)
+  const isTimelineMode = viewMode === "Week view" || viewMode === "Day view";
+
+  // 👑 ২. ডাইনামিক রেঞ্জ ক্যালকুলেশন ফিক্স (৩ থেকে ৭ তারিখ টেনে আনলে মডালে নিখুঁত রেঞ্জ দেখাবে)
+  const minDay = Math.min(Number(dragStart), Number(dragEnd));
+  const maxDay = Math.max(Number(dragStart), Number(dragEnd));
+  const dateText = minDay === maxDay ? `June ${minDay}, 2026` : `June ${minDay} to June ${maxDay}, 2026`;
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Pass the calculated range string back to the handler function
-    const calculatedTimeRange = `${startTime} - ${endTime}`;
+    // যদি টাইমলাইন মোড (Week/Day) হয় এবং নতুন ক্রিয়েশন হয়, তবে গ্রিড থেকে অটো-লক হওয়া সময়টি যাবে, অন্যথায় মডালের ড্রপডাউন সময় যাবে
+    const calculatedTimeRange = (isTimelineMode && !isEditing) ? "" : `${startTime} - ${endTime}`;
     handleCreateEvent(e, calculatedTimeRange);
   };
 
@@ -44,10 +52,26 @@ export default function CalendarModal({
         exit={{ opacity: 0, scale: 0.96, y: 15 }}
         className="w-full max-w-md overflow-hidden rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 z-10 relative"
       >
-        <h3 className="text-base font-bold text-slate-900 mb-1">New Care Schedule</h3>
-        <p className="text-xs text-violet-600 font-semibold mb-4">
-          Date Range: June {Math.min(dragStart, dragEnd)} to June {Math.max(dragStart, dragEnd)}
-        </p>
+        <h3 className="text-base font-bold text-slate-900 mb-1">
+          {isEditing ? "✏️ Update Care Schedule" : "✨ New Care Schedule"}
+        </h3>
+        
+        {/* ওপরে ডাইনামিক নোটিশ বার (👑 তারিখ এবং টাইম ড্র্যাগের ওপর ভিত্তি করে মেসেজ চেঞ্জ হবে) */}
+        <div className="text-xs text-violet-600 font-semibold mb-4 bg-violet-50/50 p-2.5 rounded-xl border border-violet-100/50">
+          <div>Date Focus: <span className="font-extrabold">{dateText}</span></div>
+          
+          {/* 👑 ৩. ইউজার যদি উইক/ডে ভিউর বডি গ্রিড থেকে সময় টেনে আসে, তবে এখানে লক হওয়ার নোটিশ সুন্দরভাবে ভেসে উঠবে */}
+          {isTimelineMode && !isEditing && (
+            <div className="mt-1 text-slate-500 text-[11px] font-medium animate-in fade-in duration-150">
+              • Time Slot: Automatically locked by {viewMode.toLowerCase()} drag grid
+            </div>
+          )}
+          {(!isTimelineMode || isEditing) && (
+            <div className="mt-1 text-slate-500 text-[11px] font-medium animate-in fade-in duration-150">
+              • Custom Time: You can fully modify hours slot in dropdown below
+            </div>
+          )}
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Child Name */}
@@ -82,29 +106,32 @@ export default function CalendarModal({
             </select>
           </div>
 
-          {/* ⏰ New Feature: Split Time Allocation Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Start Time</label>
-              <select 
-                value={startTime} 
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-hidden bg-white"
-              >
-                {timeSlots.map((slot, index) => <option key={index} value={slot}>{slot}</option>)}
-              </select>
+          {/* 👑 ৪. ডাইনামিক ভিজ্যুয়াল স্লাইড: নতুন ইভেন্ট তৈরির সময় উইক বা ডে ভিউ হলে এই ড্রপডাউন দুটি হাইড থাকবে, 
+              কিন্তু মাসের ভিউতে অথবা যেকোনো পেজ থেকে এডিট মোড ওপেন করলে ড্রপডাউন দুটি ওপেন হয়ে যাবে! */}
+          {(!isTimelineMode || isEditing) && (
+            <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-150">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Start Time</label>
+                <select 
+                  value={startTime} 
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-hidden bg-white cursor-pointer"
+                >
+                  {timeSlots.map((slot, index) => <option key={index} value={slot}>{slot}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">End Time</label>
+                <select 
+                  value={endTime} 
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-hidden bg-white cursor-pointer"
+                >
+                  {timeSlots.map((slot, index) => <option key={index} value={slot}>{slot}</option>)}
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">End Time</label>
-              <select 
-                value={endTime} 
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-violet-500 focus:outline-hidden bg-white"
-              >
-                {timeSlots.map((slot, index) => <option key={index} value={slot}>{slot}</option>)}
-              </select>
-            </div>
-          </div>
+          )}
 
           {/* Action buttons */}
           <div className="flex justify-end gap-3 pt-2">
@@ -119,7 +146,7 @@ export default function CalendarModal({
               type="submit" 
               className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 shadow-xs"
             >
-              Confirm Duty
+              {isEditing ? "Save Changes" : "Confirm Duty"}
             </button>
           </div>
         </form>

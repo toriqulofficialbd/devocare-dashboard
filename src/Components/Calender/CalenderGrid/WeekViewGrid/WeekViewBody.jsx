@@ -1,5 +1,5 @@
-
 import { Clock } from "lucide-react";
+import WeekMultiDayBanners from "./WeekMultiDayBanners";
 
 export default function WeekViewBody({
   hoursTimeline,
@@ -12,15 +12,28 @@ export default function WeekViewBody({
   dragHeight,
   weekDatesList,
   getEventsForSpecificDate,
-  handleGridMouseDown
+  handleGridMouseDown,
+  handleEventDragStart,
+  handleEventClick,
+  handleEventDrop,
+  startDayDrag,
+  currentDayDrag,
+  events,
+  currentDate
 }) {
+
+  
+  const multiDayEvents = events 
+    ? events.filter(e => Number(e.startDay) !== Number(e.endDay) && Number(e.month) === Number(currentDate?.getMonth() || e.month)) 
+    : [];
+
   return (
     <div className="flex-1 overflow-y-auto grid grid-cols-[65px_1fr] bg-white relative">
       
-      {/* বামপাশের ফিক্সড ২৪ ঘণ্টার টাইম লেবেল কলাম (h-24 উচ্চতা সিঙ্কড) */}
+      {/* বামপাশের ফিক্সড ২৪ ঘণ্টার টাইম লেবেল কলাম */}
       <div className="border-r border-[#D0D5DD] bg-violet-50 text-right lg:pr-1.5 pr-3 select-none z-10 relative">
         {hoursTimeline.map((hour, idx) => (
-          <div key={idx} className="h-24 lg:text-[10px] text-[10px] font-bold  text-[#475467] pt-1.5 whitespace-nowrap tracking-tight">
+          <div key={idx} className="h-24 lg:text-[10px] text-[10px] font-bold text-[#475467] pt-1.5 whitespace-nowrap tracking-tight">
             {hour}
           </div>
         ))}
@@ -32,14 +45,13 @@ export default function WeekViewBody({
         </div>
       </div>
 
-      {/* ৩. মেইন ইভেন্ট টাইমলাইন গ্রিড বডি (h-2304px কলাম সিঙ্কড) */}
+      {/* ৩. মেইন ইভেন্ট টাইমলাইন গ্রিড বডি */}
       <div 
         ref={gridRef} 
-        onMouseMove={handleGridMouseMove} 
-        className="grid grid-cols-7 relative bg-[#F9FAFB]/10 lg:divide-x overflow-x-auto divide-[#ddd0d0] h-[2304px]" // 👑 ফিক্স: ২৪ ঘণ্টা * ৯৬ পিক্সেল (h-24) = ২৩MD৪ পিক্সেল লক করা হলো
+        className="grid grid-cols-7 relative bg-[#F9FAFB]/10 lg:divide-x overflow-x-auto divide-[#ddd0d0] h-[2304px]"
       >
         {/* গ্লোবাল লাইভ টাইম পার্পল রেখা */}
-        <div style={{ top: `${topPositionOffset}px` }} className="absolute left-0 right-0 h-px bg-violet-500 z-25 pointer-events-none flex items-center">
+        <div style={{ top: `${topPositionOffset}px` }} className="absolute left-0 right-0 h-px bg-violet-500 z-45 pointer-events-none flex items-center">
           <div className="h-2 w-2 rounded-full bg-violet-600 -ml-1 ring-4 ring-violet-500/20" />
         </div>
 
@@ -47,51 +59,89 @@ export default function WeekViewBody({
         {isDraggingHour && (
           <div 
             style={{ top: `${dragTop}px`, height: `${dragHeight}px` }}
-            className="absolute left-0 right-0 bg-violet-500/10 border-y border-dashed border-violet-400 z-20 pointer-events-none"
+            className="absolute left-0 right-0 bg-violet-500/10 border-y border-dashed border-violet-400 z-40 pointer-events-none"
           />
         )}
 
-        {/* ব্যাকগ্রাউন্ড বর্ডার গাইডলাইনস এবং ৩০ মিনিটের ড্যাশড সেপারেটরস */}
+        {/* ব্যাকগ্রাউন্ডের ২৪টি রিয়েল আওয়ার রো গ্রিড লাইনস */}
         <div className="absolute inset-0 flex flex-col pointer-events-none z-0 divide-y divide-[#D0D5DD]">
           {hoursTimeline.map((_, idx) => (
-            <div key={idx} className="h-24 w-full relative"> {/* 👑 ফিক্স: উচ্চতা h-16 থেকে বাড়িয়ে h-24 বা ৯৬ পিক্সেল সিঙ্ক করা হলো */}
-              <div className="absolute top-1/2 left-0 right-0 h-px border-b border-dashed border-[#EAECF0]" />
-            </div>
+            <div key={idx} className="h-24 w-full relative pointer-events-auto" onDragOver={(e) => e.preventDefault()} />
           ))}
         </div>
+
+        {/* 👑 ২. মাল্টি-ডে ব্যানার ওভারলে কম্পোনেন্ট নোড (এটি কেবল ৩ থেকে ৭ তারিখের লম্বা ইভেন্টগুলোকেই হ্যান্ডেল করবে) */}
+        <WeekMultiDayBanners 
+          multiDayEvents={multiDayEvents}
+          weekDatesList={weekDatesList}
+          handleEventClick={handleEventClick}
+          handleEventDragStart={handleEventDragStart}
+        />
 
         {/* dynamic runtime weekly date cell blocks mapping */}
         {weekDatesList.map((dateItem, idx) => {
           const dayEvents = getEventsForSpecificDate(dateItem);
+          
+          const isCurrentColumnDragging = startDayDrag && currentDayDrag && 
+            dateItem.getDate() >= Math.min(startDayDrag.getDate(), currentDayDrag.getDate()) &&
+            dateItem.getDate() <= Math.max(startDayDrag.getDate(), currentDayDrag.getDate());
 
           return (
             <div 
               key={idx} 
               className="h-full relative lg:p-px p-0.5 cursor-cell lg:min-w-0 min-w-32 z-10 select-none"
               onMouseDown={(e) => handleGridMouseDown(e, dateItem)}
+              onMouseMove={(e) => handleGridMouseMove && handleGridMouseMove(e, dateItem)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                if (handleEventDrop && gridRef.current) {
+                  const rect = gridRef.current.getBoundingClientRect();
+                  const relativeY = e.clientY - rect.top;
+                  const exactHour = Math.floor(relativeY / 96); 
+                  handleEventDrop(dateItem, exactHour); 
+                }
+              }}
             >
-              {dayEvents.map((event) => {
-                const startHourVal = event.startHour !== undefined ? event.startHour : 9;
-                const durationVal = event.durationHours !== undefined ? event.durationHours : 1;
-                
-                // 👑 ফিক্স: ইভেন্ট কার্ডের টপ এবং উচ্চতা গুণিতক ৯৬ পিক্সেল (h-24 রুলস) এ সিঙ্কড করা হলো
-                const computedTop = startHourVal * 96; 
-                const computedHeight = durationVal * 96; 
+              {isDraggingHour && isCurrentColumnDragging && (
+                <div 
+                  style={{ top: `${dragTop}px`, height: `${dragHeight}px` }}
+                  className="absolute inset-x-0.5 bg-violet-500/10 border-y border-dashed border-violet-400 z-20 pointer-events-none flex items-start justify-center p-1.5"
+                >
+                  <span className="bg-violet-600 text-white font-black text-[8px] px-1 rounded shadow-xs py-0.5">Slot Locked</span>
+                </div>
+              )}
 
-                return (
-                  <div 
-                    key={event.id} 
-                    style={{ top: `${computedTop}px`, height: `${computedHeight}px` }}
-                    onMouseDown={(e) => e.stopPropagation()} 
-                    className={`absolute lg:inset-x-0.5 lg:rounded-md rounded-xl border p-1 shadow-xs transition-all flex flex-row sm:flex-col items-center sm:items-start justify-between sm:justify-start overflow-hidden text-left z-30 cursor-pointer hover:brightness-95 ${event.color}`}
-                  >
-                    <span className="truncate leading-none block font-black lg:text-[8px] text-[10px] sm:mb-1 shrink-0">{event.title}</span>
-                    <span className="text-[7px] sm:text-[8px] font-semibold opacity-90 lg:block truncate flex items-center gap-0.5 shrink-0">
-                      <Clock size={8} /> {event.time}
-                    </span>
-                  </div>
-                );
-              })}
+              {/* সিডিল একক দিনের শর্ট কার্ড রেন্ডারিং */}
+              <div className="absolute inset-0 z-35 p-1 pointer-events-none">
+                {dayEvents.map((event) => {
+                  const startHourVal = event.startHour !== undefined ? event.startHour : 9;
+                  const durationVal = event.durationHours !== undefined ? event.durationHours : 1;
+                  
+                  const computedTop = startHourVal * 96; 
+                  const computedHeight = durationVal * 96; 
+
+                  return (
+                    <div 
+                      key={event.id} 
+                      style={{ top: `${computedTop}px`, height: `${computedHeight}px` }}
+                      draggable="true" 
+                      onDragStart={() => handleEventDragStart(event.id)} 
+                      onMouseDown={(e) => e.stopPropagation()} 
+                      onMouseUp={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation(); 
+                        if (handleEventClick) handleEventClick(event);
+                      }}
+                      className={`absolute inset-x-0.5 rounded-xl border p-2 shadow-xs transition-all flex flex-col justify-start overflow-hidden text-left z-40 cursor-pointer pointer-events-auto hover:brightness-95 ${event.color}`}
+                    >
+                      <span className="truncate leading-none block font-black text-[10px] mb-1">{event.title}</span>
+                      <span className="text-[8px] font-semibold opacity-90 block truncate flex items-center gap-0.5 shrink-0">
+                        <Clock size={8} /> {event.time}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           );
         })}

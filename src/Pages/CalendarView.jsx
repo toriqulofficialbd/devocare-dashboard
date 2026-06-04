@@ -4,9 +4,11 @@ import { AnimatePresence } from "framer-motion";
 import CalendarHeader from "../Components/Calender/CalendarHeader";
 import CalendarGrid from "../Components/Calender/CalenderGrid/CalendarGrid";
 import CalendarModal from "../Components/Calender/CalendarModal";
+// 👑 নিশ্চিত করুন এই লাইনটি ফাইলের ওপরে ইম্পোর্ট করা আছে:
 
 export default function CalendarView() {
-  const globalSearch = useOutletContext(); 
+   const globalSearch = useOutletContext();
+  const [calendarSearch, setCalendarSearch] = useState(""); 
   const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 3)); 
   const [viewMode, setViewMode] = useState("Month view");
   const [direction, setDirection] = useState(0); 
@@ -34,14 +36,20 @@ export default function CalendarView() {
   const shortMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const daysInMonthCount = new Date(year, month + 1, 0).getDate();
 
+    // 👑 ট্রেন্ডি ফিক্স ২: এখন ওপরের বক্স বা ক্যালেন্ডারের বক্স—যেকোনো ১টিতে টাইপ করলেই ক্যালেন্ডার ফিল্টার হবে, কিন্তু লেখা ডুপ্লিকেট হবে না
   const filteredEvents = events.filter(event => {
-    if (!globalSearch || !globalSearch.trim()) return true;
-    const normalizedSearch = globalSearch.toLowerCase();
+    // যেকোনো একটি বক্সে লেখা থাকলে সেটি রিড করবে (ক্যালেন্ডার সার্চকে অগ্রাধিকার দেওয়া হয়েছে)
+    const activeSearch = calendarSearch.trim() ? calendarSearch : globalSearch;
+    
+    if (!activeSearch || !activeSearch.trim()) return true;
+    const normalizedSearch = activeSearch.toLowerCase();
+    
     return (
       event.title.toLowerCase().includes(normalizedSearch) ||
       event.employee.toLowerCase().includes(normalizedSearch)
     );
   });
+
 
   const handlePrevMonth = () => {
     setDirection(-1);
@@ -89,37 +97,70 @@ export default function CalendarView() {
     setIsModalOpen(false); 
   };
 
+  // 👑 লজিক ফিক্স ১: অবজেক্ট এবং সাধারণ নাম্বার—উভয় প্রকার তারিখ সিঙ্কের জন্য ইউনিভার্সাল সেফগার্ড
   const isSelected = (day) => {
     if (!dragStart || !dragEnd) return false;
-    return day >= Math.min(dragStart, dragEnd) && day <= Math.max(dragStart, dragEnd);
+    const startNum = dragStart instanceof Date ? dragStart.getDate() : (typeof dragStart === "object" ? dragStart.day : dragStart);
+    const endNum = dragEnd instanceof Date ? dragEnd.getDate() : (typeof dragEnd === "object" ? dragEnd.day : dragEnd);
+    return day >= Math.min(startNum, endNum) && day <= Math.max(startNum, endNum);
   };
 
+  // 👑 👑 লজিক ফিক্স ২: উইক ভিউ থেকে আসা পিউর ডেট অবজেক্ট থেকে ডাইনামিকালি সঠিক দিন ও মাস এক্সট্রাক্ট করার মাস্টার ইঞ্জিন
   const handleCreateEvent = (e, calculatedTimeRange) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!selectedChild || !selectedEmployee) return;
 
     const colors = ["bg-violet-50 text-violet-700 border-violet-200", "bg-teal-50 text-teal-700 border-teal-200", "bg-orange-50 text-orange-700 border-orange-200"];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const targetDay = dragStart ? dragStart : currentDate.getDate();
+    let targetDay = currentDate.getDate();
+    let targetMonth = month; 
+    let targetYear = year;
+
+    // 🎯 কনসোলে পাওয়া ডেট অবজেক্ট ট্র্যাক করার চূড়ান্ত ম্যাজিক লজিক:
+    if (dragStart instanceof Date) {
+      targetDay = dragStart.getDate();
+      targetMonth = dragStart.getMonth(); // মে এর ঘরে মে (4), জুনের ঘরে জুন (5) অটো ডিটেক্ট করবে
+      targetYear = dragStart.getFullYear();
+    } else if (dragStart && typeof dragStart === "object") {
+      targetDay = dragStart.day !== undefined ? dragStart.day : targetDay;
+      targetMonth = dragStart.month !== undefined ? dragStart.month : targetMonth;
+      targetYear = dragStart.year !== undefined ? dragStart.year : targetYear;
+    } else if (dragStart) {
+      targetDay = dragStart;
+    }
+
     const startH = viewMode === "Month view" ? 10 : weekDragHours.start;
     const endH = viewMode === "Month view" ? 11 : weekDragHours.end;
     const duration = Math.max(0.5, endH - startH);
 
-    setEvents([...events, {
+    const formatHourString = (h) => {
+      if (h === 0 || h === 24) return "12:00 AM";
+      if (h === 12) return "12:00 PM";
+      return h > 12 ? `${h - 12}:00 PM` : `${h}:00 AM`;
+    };
+
+    const finalTimeText = viewMode === "Month view" 
+      ? (calculatedTimeRange || "10:00 AM - 11:00 AM") 
+      : `${formatHourString(startH)} - ${formatHourString(endH)}`;
+
+    const newCreatedEvent = {
       id: Date.now(), 
       title: `Care: ${selectedChild}`, 
       employee: selectedEmployee,
-      startDay: targetDay, 
-      endDay: targetDay, 
-      month: month, 
-      year: year, 
-      time: viewMode === "Month view" ? calculatedTimeRange : `${startH}:00 - ${endH}:00`, 
+      startDay: Number(targetDay), 
+      endDay: Number(targetDay), 
+      month: Number(targetMonth), 
+      year: Number(targetYear), 
+      time: finalTimeText, 
       startHour: startH, 
       durationHours: duration,
       color: randomColor
-    }]);
+    };
 
+    setEvents((prev) => [...prev, newCreatedEvent]);
+
+    // ফরম এবং মডাল মেমোরি রিসেট
     setSelectedChild(""); 
     setSelectedEmployee(""); 
     setDragStart(null); 
@@ -138,11 +179,19 @@ export default function CalendarView() {
     return Array.from({ length: daysInMonthCount }, (_, i) => i + 1);
   };
 
+  // 👑 লজিক ফিক্স ৩: মডাল হেডার ডেট টেক্সট প্রিন্ট করার জন্য ডেট অবজেক্ট সেফগার্ড মেথড
+  const getModalDayDisplay = () => {
+    if (dragStart instanceof Date) return dragStart.getDate();
+    if (dragStart && typeof dragStart === "object") return dragStart.day;
+    if (dragStart) return dragStart;
+    return currentDate.getDate();
+  };
+
   return (
     <div className="select-none p-2 font-sans" onMouseUp={handleMouseUp}>
       <CalendarHeader
-        searchTerm={globalSearch} 
-        setSearchTerm={() => {}} 
+       searchTerm={calendarSearch} 
+        setSearchTerm={setCalendarSearch}
         currentDate={currentDate} 
         monthNames={monthNames} 
         shortMonthNames={shortMonthNames} 
@@ -160,7 +209,7 @@ export default function CalendarView() {
       <div className="overflow-hidden relative rounded-2xl">
         <CalendarGrid 
           filteredDays={getFilteredDays()} 
-          events={filteredEvents} 
+          events={filteredEvents}  
           currentMonth={month} 
           currentYear={year} 
           handleMouseDown={handleMouseDown} 
@@ -171,6 +220,7 @@ export default function CalendarView() {
           currentDate={currentDate}
           viewMode={viewMode} 
           setWeekDragHours={setWeekDragHours} 
+          setCurrentDate={setCurrentDate} 
         />
       </div>
 
@@ -178,9 +228,8 @@ export default function CalendarView() {
         {isModalOpen && (
           <CalendarModal 
             isModalOpen={isModalOpen} 
-            // 👑 ফিক্স: উইক ভিউতে ড্র্যাগ করা সুনির্দিষ্ট তারিখটি মডালের ওপরে ১০০% লাইভ শো করবে
-            dragStart={dragStart ? dragStart : currentDate.getDate()} 
-            dragEnd={dragEnd ? dragEnd : currentDate.getDate()} 
+            dragStart={getModalDayDisplay()} 
+            dragEnd={getModalDayDisplay()} 
             handleCreateEvent={handleCreateEvent} 
             closeModal={closeModal} 
             selectedChild={selectedChild} 

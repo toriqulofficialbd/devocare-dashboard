@@ -3,8 +3,10 @@ import { X, ArrowLeft, Menu } from "lucide-react";
 import EmailList from "../Components/Gmail/EmailList";
 import MessageDetail from "../Components/Gmail/MessageDetail";
 import MailNavigation from "../Components/Gmail/MailNavigation/MailNavigation";
+import { useOutletContext } from "react-router-dom";
 
 export default function GmailView() {
+  const globalSearch = useOutletContext();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [navWidth, setNavWidth] = useState(230);
   const [listWidth, setListWidth] = useState(360);
@@ -61,18 +63,29 @@ export default function GmailView() {
     setSelectedEmail(current);
   };
 
+   // 👑 জিমেইল ইনবক্সের জন্য গ্লোবাল সার্চ ফিল্টারিং লজিক (১০০% সচল ও ডাইনামিক)
   const filteredEmails = emails.filter((email) => {
-    if (email.archived) return false;
+    // ১. প্রথমে একটিভ ফোল্ডার চেক করবে (যেমন: Inbox, Drafts)
     if (email.folder !== activeFolder) return false; 
-    const searchLower = gmailSearchTerm.toLowerCase();
+    
+    // ২. যদি ওপরের গ্লোবাল সার্চ বক্সে কিছু লেখা না থাকে, তবে সব মেইল স্বাভাবিক দেখাবে
+    if (!globalSearch || !globalSearch.trim()) {
+      return filterType === "unread" ? email.unread : true;
+    }
+
+    // ৩. ক্যাপিটাল এবং স্মল লেটারের এরর দূর করতে লেখাগুলোকে তো lowerCase এ কনভার্ট করা হলো
+    const searchLower = globalSearch.toLowerCase();
+    
+    // ৪. প্রেরকের নাম, সাবজেক্ট এবং ভেতরের ম্যাসেজের মূল কিওয়ার্ড লাইভ স্ক্যান করবে
     const matchesSearch = 
-      email.sender.toLowerCase().includes(searchLower) ||
-      email.subject.toLowerCase().includes(searchLower) ||
-      email.snippet.toLowerCase().includes(searchLower);
+      (email.sender && email.sender.toLowerCase().includes(searchLower)) ||
+      (email.subject && email.subject.toLowerCase().includes(searchLower)) ||
+      (email.snippet && email.snippet.toLowerCase().includes(searchLower));
 
     if (filterType === "unread") return matchesSearch && email.unread;
     return matchesSearch;
   });
+
   // 👑 ADD THESE NEW BLOCKS HERE:
   const handleFolderChange = (folderName) => {
     setActiveFolder(folderName);

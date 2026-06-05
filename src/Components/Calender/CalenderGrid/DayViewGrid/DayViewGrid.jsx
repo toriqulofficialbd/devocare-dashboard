@@ -13,7 +13,7 @@ export default function DayViewGrid({
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-5 bg-white p-1 animate-in fade-in duration-150 w-full overflow-hidden">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-5 bg-white  animate-in fade-in duration-150 w-full overflow-hidden">
       
       {/* 👑 ১. বামপাশের আওয়ার্লি টাইমলাইন সাব-কম্পোনেন্ট */}
       <DayTimeline 

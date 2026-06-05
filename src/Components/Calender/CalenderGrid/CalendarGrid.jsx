@@ -17,7 +17,7 @@ export default function CalendarGrid({
   const blankSlots = Array.from({ length: firstDayIndex }, (_, i) => i);
 
   return (
-    <div className="bg-white border border-[#EAECF0] rounded-2xl  shadow-xs overflow-hidden w-full">
+    <div className=" overflow-hidden w-full">
 
       {/* 👑 ২. কন্ডিশনাল রেন্ডারিং লজিক: ড্রপডাউন অনুযায়ী সঠিক মডিউলটি স্ক্রিনে লোড হবে */}
       {viewMode === "Day view" ? (

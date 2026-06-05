@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Clock, Calendar } from "lucide-react";
+import HoverPlusTimeline from "../HoverPlusTimeline";
 
 export default function DayTimeline({ 
   currentDate, currentMonth, currentYear, activeDayEvents, 
@@ -152,8 +153,10 @@ export default function DayTimeline({
             ))}
           </div>
 
-          {/* ইভেন্ট কার্ড রেন্ডার স্লটস */}
-                    {/* ইভেন্ট কার্ড রেন্ডার স্লটস */}
+          {/* 👑 WeekViewBody.jsx এবং DayTimeline.jsx ফাইলে পুরোনো লুপ মুছে জাস্ট এই ১টি লাইন বসিয়ে দিন: */}
+
+<HoverPlusTimeline hoursTimeline={hoursTimeline} />
+
           <div className="absolute inset-0 z-10 p-1 pointer-events-none">
             {activeDayEvents.map((event) => {
               const startHourVal = event.startHour !== undefined ? event.startHour : 9;
@@ -182,6 +185,8 @@ export default function DayTimeline({
           </div>
 
         </div>
+
+        
       </div>
     </div>
   );

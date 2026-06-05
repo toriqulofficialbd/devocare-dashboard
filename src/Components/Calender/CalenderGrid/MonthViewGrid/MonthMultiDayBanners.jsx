@@ -1,10 +1,10 @@
 
 
-export default function MonthMultiDayBanners({ 
-  multiDayEvents, 
-  blankSlots, 
-  filteredDays, 
-  handleEventClick ,
+export default function MonthMultiDayBanners({
+  multiDayEvents,
+  blankSlots,
+  filteredDays,
+  handleEventClick,
   handleEventDragStart
 }) {
   return (
@@ -18,18 +18,18 @@ export default function MonthMultiDayBanners({
         const startRow = Math.floor(startGridIdx / 7);
         const startCol = startGridIdx % 7;
         const endCol = endGridIdx % 7;
-        
+
         const leftPercent = (startCol / 7) * 100;
         const widthPercent = ((endCol - startCol + 1) / 7) * 100;
-        const computedTop = (startRow * 120) + 32 + (idx * 34); 
+        const computedTop = (startRow * 120) + 32 + (idx * 34);
 
         return (
           <div
             key={event.id}
-            style={{ 
-              left: `calc(${leftPercent}% + 4px)`, 
-              width: `calc(${widthPercent}% - 8px)`, 
-              top: `${computedTop}px` 
+            style={{
+              left: `calc(${leftPercent}% + 4px)`,
+              width: `calc(${widthPercent}% - 8px)`,
+              top: `${computedTop}px`
             }}
 
             // 👑 👑 ২. মাস্টার ম্যাজিক ফিক্স: বড় ব্যানার ইভেন্টগুলোকেও এখন টেনে সরানোর জন্য অফিশিয়াল ড্র্যাগ প্রোপার্টি বাইন্ড করা হলো [▲]

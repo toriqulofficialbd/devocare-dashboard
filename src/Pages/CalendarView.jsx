@@ -21,11 +21,28 @@ export default function CalendarView() {
   const [editingEventId, setEditingEventId] = useState(null); // 👑 এডিটিং ট্র্যাক আইডি
   const [draggedEventId, setDraggedEventId] = useState(null);
 
+    // 👑 চূড়ান্ত ফিক্স: ডেমো ডাটার চাইল্ড নেম ও স্টাফ নেম ড্রপডাউন লিস্টের টেক্সটের সাথে ১০০% হুবহু ম্যাচ করা হলো
   const [events, setEvents] = useState([
-    { id: 1, title: "Care: Sami", employee: "Karim Rahman", startDay: 1, endDay: 1, month: 5, year: 2026, time: "09:00 AM - 10:00 AM", startHour: 9, durationHours: 1, color: "bg-orange-50 text-orange-700 border-orange-200" },
-    { id: 2, title: "Care: Aria", employee: "Sultana Begum", startDay: 4, endDay: 4, month: 5, year: 2026, time: "04:00 PM - 05:30 PM", startHour: 16, durationHours: 1.5, color: "bg-violet-50 text-violet-700 border-violet-200" },
-    { id: 3, title: "Product Demo", employee: "Abir Hasan", startDay: 2, endDay: 2, month: 5, year: 2026, time: "04:30 PM - 05:30 PM", startHour: 16.5, durationHours: 1, color: "bg-blue-50 text-blue-700 border-blue-200" },
+    { 
+      id: 1, 
+      title: "Care: Sami (Autism Spectrum)", // 👈 ওল্ড "Care: Sami" পরিবর্তন করে ফুল ড্রপডাউন নাম দেওয়া হলো [▲]
+      employee: "Karim Rahman (Therapist)", 
+      startDay: 1, endDay: 1, month: 5, year: 2026, time: "09:00 AM - 10:00 AM", startHour: 9, durationHours: 1, color: "bg-orange-50 text-orange-700 border-orange-200" 
+    },
+    { 
+      id: 2, 
+      title: "Care: Aria (Down Syndrome)", // 👈 ওল্ড "Care: Aria" পরিবর্তন করে ফুল ড্রপডাউন নাম দেওয়া হলো [▲]
+      employee: "Sultana Begum (Nurse)", 
+      startDay: 4, endDay: 4, month: 5, year: 2026, time: "04:00 PM - 05:30 PM", startHour: 16, durationHours: 1.5, color: "bg-violet-50 text-violet-700 border-violet-200" 
+    },
+    { 
+      id: 3, 
+      title: "Product Demo", // এটি প্রোডাক্ট ডেমো হিসেবে স্টাফের সাথে সিঙ্কড থাকবে
+      employee: "Abir Hasan (Caregiver)", 
+      startDay: 2, endDay: 2, month: 5, year: 2026, time: "04:30 PM - 05:30 PM", startHour: 16.5, durationHours: 1, color: "bg-blue-50 text-blue-700 border-blue-200" 
+    },
   ]);
+
 
   const [weekDragHours, setWeekDragHours] = useState({ start: 9, end: 10 });
 
@@ -93,6 +110,7 @@ export default function CalendarView() {
   };
 
   const handleMouseDown = (day) => { 
+     setEditingEventId(null);
     setIsDragging(true); 
     setDragStart(day); 
     setDragEnd(day); 
@@ -183,7 +201,13 @@ export default function CalendarView() {
   };
 
   
-  const handleAddEventClick = () => { 
+    const handleAddEventClick = () => { 
+    setEditingEventId(null);
+    
+    // 👑 গ্লিচ ফিক্স: নতুন ইভেন্ট ফর্মে যাতে আগের ডাটা না দেখায়, সেজন্য স্টেট ব্ল্যাঙ্ক করা হলো
+    if (setSelectedChild) setSelectedChild(""); 
+    if (setSelectedEmployee) setSelectedEmployee("");
+
     setDragStart(currentDate.getDate()); 
     setDragEnd(currentDate.getDate()); 
     setWeekDragHours({ start: 10, end: 11 });
@@ -191,10 +215,17 @@ export default function CalendarView() {
   };
   
   const closeModal = () => { 
+    setEditingEventId(null);
     setDragStart(null); 
     setDragEnd(null); 
+    
+    // 👑 মোডাল বন্ধ করার সময়ও সেফটি রিসেট করে দেওয়া হলো
+    if (setSelectedChild) setSelectedChild(""); 
+    if (setSelectedEmployee) setSelectedEmployee("");
+
     setIsModalOpen(false); 
   };
+
 
   // 👑 লজিক ফিক্স ১: অবজেক্ট এবং সাধারণ নাম্বার—উভয় প্রকার তারিখ সিঙ্কের জন্য ইউনিভার্সাল সেফগার্ড
     // 👑 পরিবর্তন ১: আপনার ফাইলের আনুমানিক ৭০ নম্বর লাইনে থাকা 'isSelected' ফাংশনটি পরিবর্তন করুন:

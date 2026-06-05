@@ -21,6 +21,18 @@ export default function WeekViewGrid({
     return () => clearInterval(timer);
   }, []);
 
+  // 👑 গ্লোবাল মাউস আপ লিসেনার (মাউস ক্যালেন্ডারের বাইরে গিয়ে ছেড়ে দিলেও ড্র্যাগিং সুন্দরভাবে ক্লোজ হবে)
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDraggingHour) {
+        setIsDraggingHour(false);
+        if (handleMouseUp) handleMouseUp();
+      }
+    };
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+    return () => window.removeEventListener("mouseup", handleGlobalMouseUp);
+  }, [isDraggingHour, handleMouseUp]);
+
   const hoursTimeline = Array.from({ length: 24 }, (_, i) => {
     if (i === 0) return "12 AM";
     if (i === 12) return "12 PM";
@@ -44,23 +56,23 @@ export default function WeekViewGrid({
 
   const weekDatesList = getWeekDates();
 
-  // ১ ঘণ্টার সুনির্দিষ্ট ইভেন্ট ফিল্টারিং
   const getEventsForSpecificDate = (dateObj) => {
-    return events.filter(e => 
+    return events ? events.filter(e => 
       Number(dateObj.getDate()) === Number(e.startDay) && 
       Number(dateObj.getMonth()) === Number(e.month) && 
       Number(dateObj.getFullYear()) === Number(e.year) &&
-      (e.startDay === e.endDay) // শুধুমাত্র একক দিনের ইভেন্ট
-    );
+      (e.startDay === e.endDay)
+    ) : [];
   };
 
-  
-
+  // 👑 ফিক্সড ১: বডি গ্রিডের ফিক্সড h-24 বা ৯৬ পিক্সেলের সাথে মিল রেখে গাণিতিক হিসাব ঠিক করা হলো
   const calculateHourFromY = (e) => {
     if (!gridRef.current) return 9;
     const rect = gridRef.current.getBoundingClientRect();
     const relativeY = e.clientY - rect.top;
-    const exactHour = Math.floor(relativeY / 128); 
+    
+    // এখানে ১২৮ এর জায়গায় ৯৬ দিয়ে নিখুঁতভাবে ভাগ করা হলো
+    const exactHour = Math.floor(relativeY / 96); 
     return Math.max(0, Math.min(23, exactHour));
   };
 
@@ -107,21 +119,15 @@ export default function WeekViewGrid({
     }
   };
 
-  const handleGridMouseUp = () => {
-    if (isDraggingHour) {
-      setIsDraggingHour(false);
-      handleMouseUp(); 
-    }
-  };
-
-  const topPositionOffset = (now.getHours() * 128) + (now.getMinutes() * (128 / 60));
-  const dragTop = Math.min(startHourDrag, currentLiveHour) * 128;
-  const dragHeight = (Math.abs(currentLiveHour - startHourDrag) + 1) * 128;
-
- 
+  // 👑 ফিক্সড ২: গ্রিড বডির উচ্চতার সাথে সামঞ্জস্য রেখে টপ পজিশন এবং ড্র্যাগ হাইট ক্যালকুলেশন ফিক্সড
+  const topPositionOffset = (now.getHours() * 96) + (now.getMinutes() * (96 / 60));
+  const dragTop = Math.min(startHourDrag, currentLiveHour) * 96;
+  
+  // এখানে অতিরিক্ত (+ 1) মুছে দিয়ে নূন্যতম ১টি স্লট সিলেক্ট রাখার ম্যাজিক লজিক দেওয়া হলো
+  const dragHeight = Math.max(1, Math.abs(currentLiveHour - startHourDrag)) * 96;
 
   return (
-    <div className="flex flex-col h-[600px] bg-white border border-[#D0D5DD] rounded-2xl shadow-xs overflow-hidden select-none font-sans w-full" onMouseUp={handleGridMouseUp}>
+    <div className="flex flex-col h-[600px] bg-white border border-[#D0D5DD] rounded-2xl shadow-xs overflow-hidden select-none font-sans w-full">
       
       <WeekViewHeader 
         weekDatesList={weekDatesList}
@@ -129,8 +135,6 @@ export default function WeekViewGrid({
         daysOfWeek={daysOfWeek}
         handleGridMouseDown={handleGridMouseDown}
       />
-
-      
 
       <WeekViewBody 
         hoursTimeline={hoursTimeline}
@@ -147,7 +151,6 @@ export default function WeekViewGrid({
         handleEventDragStart={handleEventDragStart}
         handleEventClick={handleEventClick}
         handleEventDrop={handleEventDrop} 
-        // 👑 নতুন ড্র্যাগ প্রিভিউ ট্র্যাকার প্রোপস
         startDayDrag={startDayDrag}
         currentDayDrag={currentDayDrag}
         events={events}

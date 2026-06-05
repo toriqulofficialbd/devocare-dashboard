@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import MonthDayCell from "./MonthDayCell";
-import MonthMultiDayBanners from "./MonthMultiDayBanners";
+import MonthMultiDayBanners from "./MonthMultiDayBanners/MonthMultiDayBanners";
 
 export default function MonthViewGrid({ 
   filteredDays, currentMonth, currentYear, direction, blankSlots, isSelected, handleMouseDown, handleMouseEnter, activeMobileDay, setActiveMobileDay, handleEventClick,

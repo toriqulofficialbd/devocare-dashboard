@@ -1,6 +1,6 @@
 import { Clock } from "lucide-react";
 import WeekMultiDayBanners from "./WeekMultiDayBanners";
-import HoverPlusTimeline from "../HoverPlusTimeline";
+// import HoverPlusTimeline from "../HoverPlusTimeline";
 
 export default function WeekViewBody({
   hoursTimeline,
@@ -83,7 +83,7 @@ export default function WeekViewBody({
           return (
             <div 
               key={idx} 
-              className="h-full relative lg:p-px p-0.5 cursor-cell lg:min-w-0 min-w-32 z-10 select-none"
+              className="h-full relative lg:p-px p-0.5 cursor-cell lg:min-w-0 min-w-32 z-0 select-none"
               onMouseDown={(e) => handleGridMouseDown(e, dateItem)}
               onMouseMove={(e) => handleGridMouseMove && handleGridMouseMove(e, dateItem)}
               onDragOver={(e) => e.preventDefault()}
@@ -96,7 +96,7 @@ export default function WeekViewBody({
                 }
               }}
             >
-            <HoverPlusTimeline hoursTimeline={hoursTimeline} />
+            {/* <HoverPlusTimeline hoursTimeline={hoursTimeline} /> */}
               
               {/* 👑 জাদুকরী ২ডি ওভারলে ফিক্স: এটি প্রতিটি কলামের নির্দিষ্ট ড্র্যাগ এরিয়াতেই কেবল বেগুনি শ্যাডো লক করবে */}
               {isDraggingHour && isCurrentColumnDragging && (

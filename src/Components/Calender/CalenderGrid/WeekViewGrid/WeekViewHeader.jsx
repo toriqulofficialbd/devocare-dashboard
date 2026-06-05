@@ -7,7 +7,7 @@ export default function WeekViewHeader({
   handleGridMouseDown 
 }) {
   return (
-    <div className="grid lg:grid-cols-[65px_1fr] border-b border-[#D0D5DD] bg-white shrink-0 sticky top-0 z-30 shadow-xs">
+    <div className="grid lg:grid-cols-[65px_1fr] border-b border-[#D0D5DD] bg-white shrink-0 sticky top-0 z-0 shadow-xs">
       <div className="md:border-r border-[#D0D5DD] bg-[#F9FAFB]/50" />
       
       <div className="grid grid-cols-7 divide-x divide-[#D0D5DD] overflow-x-auto scrollbar-none">

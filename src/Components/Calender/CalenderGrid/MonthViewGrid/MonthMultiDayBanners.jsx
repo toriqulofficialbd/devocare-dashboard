@@ -8,7 +8,7 @@ export default function MonthMultiDayBanners({
   handleEventDragStart
 }) {
   return (
-    <div className="absolute inset-0 pointer-events-none hidden sm:block z-30 pt-8 pl-1 pr-1">
+    <div className="absolute inset-0 pointer-events-none  z-30 pt-8 pl-1 pr-1">
       {multiDayEvents.map((event, idx) => {
         const startGridIdx = blankSlots.length + filteredDays.findIndex(d => d === event.startDay);
         const endGridIdx = blankSlots.length + filteredDays.findIndex(d => d === event.endDay);

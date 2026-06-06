@@ -25,7 +25,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, currentPath }
         </button>
       </div>
 
-      {/* Navigation Streams */}
+     
       <nav className="flex-1 space-y-1">
         <Link 
           to="/" 
@@ -49,7 +49,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, currentPath }
         </Link>
       </nav>
 
-      {/* Footer Metrics */}
+     
       <div className="pt-4 border-t border-[#EAECF0] text-[11px] font-medium text-slate-400 flex items-center gap-2">
         <Settings className="h-3.5 w-3.5" />
         <span>v1.0.0 • 2026 Edition</span>

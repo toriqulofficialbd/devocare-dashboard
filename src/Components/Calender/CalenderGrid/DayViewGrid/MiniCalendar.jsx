@@ -12,7 +12,7 @@ export default function MiniCalendar({ events, currentMonth, currentYear, curren
 
   return (
     <div className="border border-[#D0D5DD] bg-[#FCFCFD]/50 rounded-2xl p-4 flex flex-col gap-4 select-none h-[550px]">
-      {/* মিনি ক্যালেন্ডার হেডার নেভিগেশন বার */}
+     
       <div className="flex items-center justify-between shrink-0">
         <span className="text-xs font-black text-slate-800 uppercase tracking-wider">{monthNames[currentMonth]} {currentYear}</span>
         <div className="flex items-center gap-1">
@@ -21,12 +21,12 @@ export default function MiniCalendar({ events, currentMonth, currentYear, curren
         </div>
       </div>
 
-      {/* বারের নাম (Su, Mo, Tu...) */}
+      
       <div className="grid grid-cols-7 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1.5 shrink-0">
         {daysOfWeek.map((day, idx) => ( <div key={idx}>{day}</div> ))}
       </div>
 
-      {/* দিনগুলোর সেল গ্রিড */}
+    
       <div className="grid grid-cols-7 gap-y-1.5 text-center text-xs font-bold shrink-0">
         {blankSlots.map((_, idx) => ( <div key={`blank-${idx}`} /> ))}
         {totalDaysArray.map((day) => {
@@ -50,7 +50,7 @@ export default function MiniCalendar({ events, currentMonth, currentYear, curren
 
       <div className="border-t border-[#D0D5DD] my-0.5 shrink-0" />
 
-      {/* 📱 সিলেক্টেড ইভেন্ট এজেন্ডা প্যানেল (স্ক্রিনশটের হুবহু কপি) */}
+     
       <div className="flex-1 flex flex-col overflow-hidden">
         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block shrink-0">Product Demo Agenda</span>
         <div className="flex-1 overflow-y-auto space-y-2 pr-0.5">

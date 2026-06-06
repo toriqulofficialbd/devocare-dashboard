@@ -10,7 +10,7 @@ export default function MultiDayEventCard({
   const startGridIdx = blankSlots.length + filteredDays.findIndex(d => d === event.startDay);
   const endGridIdx = blankSlots.length + filteredDays.findIndex(d => d === event.endDay);
 
-  // যদি এই মাসের শুরুর অফসেটের আগে চলে যায়, তবে রেন্ডার হবে না
+  
   if (startGridIdx < blankSlots.length) return null;
 
   const startRow = Math.floor(startGridIdx / 7);
@@ -20,7 +20,7 @@ export default function MultiDayEventCard({
   const leftPercent = (startCol / 7) * 100;
   const widthPercent = ((endCol - startCol + 1) / 7) * 100;
 
-  // রিয়াল-টাইম রেস্পন্সিভ লেআউট গাণিতিক হিসাব
+ 
   const rowHeight = isMobile ? 75 : 120;
   const topGap = isMobile ? 18 : 32;
   const itemGap = isMobile ? 18 : 34;

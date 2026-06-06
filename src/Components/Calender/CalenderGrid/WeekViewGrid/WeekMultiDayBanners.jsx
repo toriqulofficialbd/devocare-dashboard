@@ -17,12 +17,16 @@ export default function WeekMultiDayBanners({
         const activeStart = startIdx;
         const activeEnd = endIdx === -1 ? 6 : endIdx;
         
-        // কলামের দৈর্ঘ্য এবং চওড়ার পিক্সেল পজিশন ক্যালকুলেটর
+        
         const leftPercent = (activeStart / 7) * 100;
         const widthPercent = ((activeEnd - activeStart + 1) / 7) * 100;
-        
-        // ঘণ্টার পজিশনটি নিখুঁতভাবে ৯৬ পিক্সেল (h-24 রুলস) গুণিতকে ট্র্যাক করা
-        const computedTop = (event.startHour !== undefined ? event.startHour : 10) * 96; 
+       
+
+        const startHourVal = event.startHour !== undefined ? event.startHour : 9;
+        const computedTop = startHourVal * 96;
+
+        const durationVal = event.durationHours !== undefined ? event.durationHours : 1;
+        const computedHeight = durationVal * 96;
 
         return (
           <div
@@ -30,7 +34,8 @@ export default function WeekMultiDayBanners({
             style={{ 
               left: `calc(${leftPercent}% + 4px)`, 
               width: `calc(${widthPercent}% - 8px)`, 
-              top: `${computedTop + 4}px` 
+              top: `${computedTop + 4}px` ,
+              height: `${computedHeight - 8}px`
             }}
             draggable="true"
             onDragStart={() => handleEventDragStart && handleEventDragStart(event.id)}
@@ -40,12 +45,15 @@ export default function WeekMultiDayBanners({
               e.stopPropagation();
               if (handleEventClick) handleEventClick(event);
             }}
-            className={`absolute h-16 rounded-xl border p-2 shadow-xs transition-all flex flex-col justify-center text-left cursor-pointer pointer-events-auto hover:brightness-95 select-none truncate ${event.color}`}
+            className={`absolute rounded-xl border p-2.5 shadow-xs transition-all flex flex-col justify-start text-left cursor-pointer pointer-events-auto hover:brightness-95 select-none overflow-hidden ${event.color}`}
           >
-            <div className="truncate font-black lg:text-[9px] text-[10px] leading-none mb-1">
+          
+            <div className="truncate font-black lg:text-[9px] text-[10px] leading-none mb-1.5 shrink-0">
               {event.title}
             </div>
-            <div className="text-[7px] sm:text-[8px] font-semibold opacity-90 leading-none truncate flex items-center gap-0.5">
+            
+           
+            <div className="text-[7px] sm:text-[8px] font-semibold opacity-90 leading-none truncate flex items-center gap-0.5 shrink-0">
               <Clock size={8} /> {event.time}
             </div>
           </div>

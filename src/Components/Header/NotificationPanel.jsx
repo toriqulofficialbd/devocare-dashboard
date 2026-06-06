@@ -29,18 +29,18 @@ export default function NotificationPanel() {
 
       {isOpen && (
         <>
-          {/* ক্লিক-অ্যাওয়ে ব্যাকড্রপ লেয়ার */}
+         
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           
-          {/* 👑 ট্রেন্ডি ফিক্সড কন্টেইনার: মোবাইলে w-[calc(100vw-2rem)] এবং ল্যাপটপে sm:w-72 সেট করা হয়েছে */}
+          
           <div className="absolute -right-12 sm:right-0 top-10 w-[calc(100vw-2rem)] sm:w-72 bg-white border border-[#EAECF0] rounded-xl shadow-2xl z-[100] p-1 divide-y divide-[#EAECF0] animate-in fade-in slide-in-from-top-2 duration-150">
             
-            {/* নোটিফিকেশন হেডার বার */}
+           
             <div className="px-3 py-2 text-xs font-bold text-slate-800">
               Notifications
             </div>
             
-            {/* নোটিফিকেশন লিস্ট বডি */}
+          
             <div className="py-1 space-y-0.5 max-h-[280px] overflow-y-auto">
               {notifications.map((item) => (
                 <div 

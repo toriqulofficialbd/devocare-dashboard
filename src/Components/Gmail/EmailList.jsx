@@ -6,7 +6,7 @@ export default function EmailList({ emails = [], selectedEmailId, onSelectEmail,
       <div className="p-4 border-b border-[#EAECF0] flex items-center justify-between shrink-0">
         <h2 className="text-xl font-bold text-slate-900">Inbox</h2>
         
-        {/* 👑 টগল একটিভ ফিল্টার বাটন গ্রুপ */}
+        
         <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
           <button 
             onClick={() => setFilterType("all")}
@@ -52,7 +52,7 @@ export default function EmailList({ emails = [], selectedEmailId, onSelectEmail,
                     : "bg-white border-[#EAECF0] hover:border-slate-300 shadow-xs"
                 }`}
               >
-                {/* 🔵 আনরিড মেইলের পাশে মডার্ন ব্লু ডট নোটিফিকেশন */}
+               
                 {email.unread && !isSelected && (
                   <span className="absolute top-4 right-4 h-2 w-2 bg-blue-600 rounded-full" />
                 )}

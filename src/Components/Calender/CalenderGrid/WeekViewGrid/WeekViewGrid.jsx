@@ -89,14 +89,18 @@ export default function WeekViewGrid({
       setWeekDragHours({ start: clickedHour, end: clickedHour + 1 });
     }
     
-    handleMouseDown({
-      day: dateItem.getDate(),
-      month: dateItem.getMonth(),
-      year: dateItem.getFullYear()
-    }); 
+   if (dateItem) {
+  setCurrentDayDrag(dateItem);
+
+  handleMouseDown({
+    day: dateItem.getDate(),
+    month: dateItem.getMonth(),
+    year: dateItem.getFullYear(),
+  });
+}
   };
 
-  const handleGridMouseMove = (e, dateItem = null) => {
+  const handleGridMouseMove = (e,dateItem = null ) => {
     if (!isDraggingHour) return;
     const currentHourDrag = calculateHourFromY(e);
     setCurrentLiveHour(currentHourDrag);
@@ -108,22 +112,24 @@ export default function WeekViewGrid({
       });
     }
 
+    
     if (dateItem) {
       setCurrentDayDrag(dateItem);
       handleMouseDown({
         day: startDayDrag ? startDayDrag.getDate() : dateItem.getDate(),
         endDay: dateItem.getDate(),
         month: dateItem.getMonth(),
+         endMonth: dateItem.getMonth(),
         year: dateItem.getFullYear()
       });
     }
   };
 
-  // 👑 ফিক্সড ২: গ্রিড বডির উচ্চতার সাথে সামঞ্জস্য রেখে টপ পজিশন এবং ড্র্যাগ হাইট ক্যালকুলেশন ফিক্সড
+ 
   const topPositionOffset = (now.getHours() * 96) + (now.getMinutes() * (96 / 60));
   const dragTop = Math.min(startHourDrag, currentLiveHour) * 96;
   
-  // এখানে অতিরিক্ত (+ 1) মুছে দিয়ে নূন্যতম ১টি স্লট সিলেক্ট রাখার ম্যাজিক লজিক দেওয়া হলো
+  
   const dragHeight = Math.max(1, Math.abs(currentLiveHour - startHourDrag)) * 96;
 
   return (

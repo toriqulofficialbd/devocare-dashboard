@@ -9,7 +9,7 @@ export default function DayTimeline({
 }) {
   const [now, setNow] = useState(new Date());
   
-  // লাইভ ড্র্যাগ এবং পিক্সেল পজিশন ট্র্যাকিং রেফারেন্স স্টেট
+  
   const [isDraggingHour, setIsDraggingHour] = useState(false);
   const [startHourDrag, setStartHourDrag] = useState(9);
   const [currentLiveHour, setCurrentLiveHour] = useState(10);
@@ -28,12 +28,12 @@ export default function DayTimeline({
     return i > 12 ? `${i - 12} PM` : `${i} AM`;
   });
 
-  // পিক্সেল-পারফেক্ট ক্যালকুলেটর: মাউস চেপে টানার সময় কারেন্ট স্ক্রল অফসেট অনুযায়ী ঘণ্টার স্লট বের করার লজিক
+  
   const calculateHourFromY = (e) => {
     if (!gridRef.current) return 9;
     const rect = gridRef.current.getBoundingClientRect();
     const relativeY = e.clientY - rect.top;
-    const exactHour = Math.floor(relativeY / 96); // প্রতি ১ ঘণ্টা = ৯৬ পিক্সেল উচ্চতা রেশিও
+    const exactHour = Math.floor(relativeY / 96); 
     return Math.max(0, Math.min(23, exactHour));
   };
 
@@ -48,7 +48,7 @@ export default function DayTimeline({
       setWeekDragHours({ start: clickedHour, end: clickedHour + 1 });
     }
     
-    // মেইন প্যারেন্টে তারিখ, মাস এবং বছরের পিউর মেমোরি অবজেক্ট পুশ
+    
     handleMouseDown({
       day: currentDate.getDate(),
       month: currentDate.getMonth(),
@@ -71,11 +71,11 @@ export default function DayTimeline({
   const handleGridMouseUp = () => {
     if (isDraggingHour) {
       setIsDraggingHour(false);
-      if (handleMouseUp) handleMouseUp(); // মডাল ওপেন ট্রিগার করবে
+      if (handleMouseUp) handleMouseUp(); 
     }
   };
 
-  // প্রতি ১ ঘণ্টা = ৯৬ পিক্সেল ধরে লাইভ রেখার অফসেট পজিশন
+  
   const topPositionOffset = (now.getHours() * 96) + (now.getMinutes() * (96 / 60));
   const dragTop = Math.min(startHourDrag, currentLiveHour) * 96;
   const dragHeight = (Math.abs(currentLiveHour - startHourDrag) + 1) * 96;
@@ -90,7 +90,7 @@ export default function DayTimeline({
 
 
    return (
-    // 👑 ফিক্স: পুরো কন্টেইনারে মাউস আপ বাইন্ডিং যুক্ত করা হলো যাতে ফর্ম মডাল পপ-আপ হতে পারে
+    
     <div className="border border-[#D0D5DD] rounded-2xl overflow-hidden flex flex-col h-[550px] bg-white" onMouseUp={handleGridMouseUp}>
       
       {/* টপ ফিক্সড ইনফো বার */}
@@ -99,9 +99,9 @@ export default function DayTimeline({
         Timeline: {currentDate.getDate()} {monthNames[currentMonth]}, {currentYear}
       </div>
 
-      {/* স্ক্রলযোগ্য ২৪ ঘণ্টার টাইম ক্যানভাস */}
+      
       <div className="flex-1 overflow-y-auto grid grid-cols-[65px_1fr] bg-white relative">
-        {/* বামপাশের ফিক্সড টাইম লেবেল */}
+        
         <div className="border-r border-[#D0D5DD] bg-[#F9FAFB]/60 text-right pr-2 select-none z-10 relative">
           {hoursTimeline.map((hour, idx) => (
             <div key={idx} className="h-24 text-[10px] font-bold text-[#475467] pt-1.5 whitespace-nowrap tracking-tight">{hour}</div>
@@ -111,49 +111,49 @@ export default function DayTimeline({
           </div>
         </div>
 
-        {/* 👑 👑 ডানপাশের ইভেন্ট গ্রিড কন্টেইনার: মাউস মুভমেন্ট এবং ড্র্যাগ ইভেন্ট লিসেনারগুলো সরাসরি এই গ্রিড বডিতে বাইন্ড করা হলো */}
+        
         <div 
           ref={gridRef}
           onMouseDown={handleGridMouseDown}
           onMouseMove={handleGridMouseMove}
           className="relative bg-[#F9FAFB]/10 h-[2304px] cursor-cell"
         >
-          {/* গ্লোবাল লাইভ টাইম পার্পল ইন্ডিকেটর লাইন */}
+          
           <div style={{ top: `${topPositionOffset}px` }} className="absolute left-0 right-0 h-px bg-violet-500 z-25 pointer-events-none flex items-center">
             <div className="h-2 w-2 rounded-full bg-violet-600 -ml-1 ring-4 ring-violet-500/20" />
           </div>
 
-          {/* 👑 নতুন ভিজ্যুয়াল ফিচার: ড্র্যাগ করার সময় লাইভ পার্পল ওভারলে সিলেকশন শ্যাডো লেয়ার অন */}
+          
           {isDraggingHour && (
   <div 
     style={{ top: `${dragTop}px`, height: `${dragHeight}px` }}
     className="absolute left-0 right-0 bg-violet-500/10 border-y border-dashed border-violet-400 z-20 pointer-events-none flex items-center justify-center"
   >
-    {/* 🎯 ভেরিয়েবলটি এখানে সুন্দরভাবে লাইভ টাইম টেক্সট রেন্ডার করবে */}
+    
     <span className="bg-violet-600 text-white font-black text-[9px] px-2 py-0.5 rounded-md shadow-md shadow-violet-600/20 tracking-tight animate-in zoom-in-95 duration-100">
       {liveDragTimeText}
     </span>
   </div>
 )}
 
-          {/* 👑 👑 ফিক্স: ব্যাকগ্রাউন্ডের আওয়ার রো গ্রিডগুলোকে মাউস ড্রপ সিগন্যাল রিসিভ করার জন্য 'pointer-events-auto' নোডে আনলক করা হলো */}
+         
           <div className="absolute inset-0 flex flex-col pointer-events-none z-0 divide-y divide-[#D0D5DD]">
             {hoursTimeline.map((_, idx) => (
               <div 
                 key={idx} 
-                className="h-24 w-full relative pointer-events-auto" // 👈 এটি আপনার টানা কার্ডের ড্রপ সিগন্যাল রিড করবে [▲]
-                onDragOver={(e) => e.preventDefault()} // 👈 কার্ড পেজের মাথায় ড্র্যাগ হোল্ড ধরে রাখবে [▲]
+                className="h-24 w-full relative pointer-events-auto" 
+                onDragOver={(e) => e.preventDefault()} 
                 onDrop={() => {
-                  if (handleEventDrop) handleEventDrop(currentDate, idx); // 👈 মাউস ছেড়ে দিলে ওই নতুন সময়ের ঘরে কার্ড রিস্টোর করবে [▲]
+                  if (handleEventDrop) handleEventDrop(currentDate, idx); 
                 }}
               >
-                {/* ৩০ মিনিটের মাথায় হাল্কা থিম ড্যাশড বর্ডার */}
+                
                 <div className="absolute top-1/2 left-0 right-0 h-px border-b border-dashed border-[#EAECF0]" />
               </div>
             ))}
           </div>
 
-          {/* 👑 WeekViewBody.jsx এবং DayTimeline.jsx ফাইলে পুরোনো লুপ মুছে জাস্ট এই ১টি লাইন বসিয়ে দিন: */}
+          
 
 {/* <HoverPlusTimeline hoursTimeline={hoursTimeline} /> */}
 
@@ -168,13 +168,13 @@ export default function DayTimeline({
               return (
                 <div 
                   key={event.id} 
-                  // 👑 ফিক্স: ডুপ্লিকেট রিমুভ করে শুধুমাত্র ১টি নির্ভুল 'style' অবজেক্ট রাখা হলো
+                 
                   style={{ top: `${computedTop}px`, height: `${computedHeight}px` }}
                   draggable="true" 
                   onDragStart={() => handleEventDragStart(event.id)} 
                   onClick={() => handleEventClick(event)}
                   onMouseDown={(e) => e.stopPropagation()} 
-                  // 👑 ফিক্স: ডুপ্লিকেট 'className' মুছে শুধুমাত্র ১টি ক্লিন রেসপনসিভ ক্লাস কন্টেইনার ফিক্সড করা হলো
+                  
                   className={`absolute inset-x-2 rounded-xl border p-2.5 shadow-xs transition-all flex flex-col justify-start overflow-hidden text-left z-30 cursor-pointer hover:brightness-95 pointer-events-auto ${event.color}`}
                 >
                   <span className="truncate leading-none block font-black text-[10px] mb-1">{event.title}</span>

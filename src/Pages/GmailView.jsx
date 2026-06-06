@@ -16,7 +16,7 @@ export default function GmailView() {
   const [filterType, setFilterType] = useState("all"); 
      
   
-  // 👑 ADD THIS NEW LINE HERE:
+  
   const [activeFolder, setActiveFolder] = useState("Inbox");
 
 
@@ -52,31 +52,31 @@ export default function GmailView() {
   };
 
 
-  // 👑 ৩-ডট মেনুর জন্য নতুন ফিচার: মেইলকে পুনরায় Mark as Unread করা
+ 
   const handleMarkAsUnread = (id) => {
     const updatedEmails = emails.map((email) => 
       email.id === id ? { ...email, unread: true } : email
     );
     setEmails(updatedEmails);
-    // লিস্টের ওই অবজেক্ট স্টেটকে আপডেট করা
+   
     const current = updatedEmails.find(e => e.id === id);
     setSelectedEmail(current);
   };
 
-   // 👑 জিমেইল ইনবক্সের জন্য গ্লোবাল সার্চ ফিল্টারিং লজিক (১০০% সচল ও ডাইনামিক)
+   
   const filteredEmails = emails.filter((email) => {
-    // ১. প্রথমে একটিভ ফোল্ডার চেক করবে (যেমন: Inbox, Drafts)
+   
     if (email.folder !== activeFolder) return false; 
     
-    // ২. যদি ওপরের গ্লোবাল সার্চ বক্সে কিছু লেখা না থাকে, তবে সব মেইল স্বাভাবিক দেখাবে
+   
     if (!globalSearch || !globalSearch.trim()) {
       return filterType === "unread" ? email.unread : true;
     }
 
-    // ৩. ক্যাপিটাল এবং স্মল লেটারের এরর দূর করতে লেখাগুলোকে তো lowerCase এ কনভার্ট করা হলো
+   
     const searchLower = globalSearch.toLowerCase();
     
-    // ৪. প্রেরকের নাম, সাবজেক্ট এবং ভেতরের ম্যাসেজের মূল কিওয়ার্ড লাইভ স্ক্যান করবে
+   
     const matchesSearch = 
       (email.sender && email.sender.toLowerCase().includes(searchLower)) ||
       (email.subject && email.subject.toLowerCase().includes(searchLower)) ||
@@ -86,7 +86,7 @@ export default function GmailView() {
     return matchesSearch;
   });
 
-  // 👑 ADD THESE NEW BLOCKS HERE:
+ 
   const handleFolderChange = (folderName) => {
     setActiveFolder(folderName);
     const targetMails = emails.filter(e => e.folder === folderName);
@@ -144,7 +144,7 @@ export default function GmailView() {
         <div className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs xl:hidden" onClick={() => setIsMobileNavOpen(false)} />
       )}
       
-      {/* Panel 1: Left Navigation Drawer */}
+   
       <div style={{ width: windowWidth >= 1280 ? `${navWidth}px` : "240px" }} className={`h-full overflow-y-auto bg-white shrink-0 fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 xl:static xl:translate-x-0 ${isMobileNavOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex xl:hidden justify-between items-center p-4 border-b border-slate-100">
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mailboxes</span>
@@ -153,17 +153,17 @@ export default function GmailView() {
         <MailNavigation activeFolder={activeFolder} onFolderSelect={handleFolderChange} counts={folderCounts} />
       </div>
       
-      {/* Panel 1 Resizer Bar */}
+      
       <div onMouseDown={() => { isResizingNav.current = true; document.body.style.cursor = "col-resize"; }} className="hidden xl:flex w-1 bg-[#EAECF0] hover:bg-violet-400 cursor-col-resize transition-colors items-center justify-center group shrink-0 relative z-30">
         <div className="w-0.5 h-8 bg-slate-300 group-hover:bg-white rounded-full opacity-0 group-hover:opacity-100" />
       </div>
 
-      {/* Panel 2: Center Email List Stack Feed */}
+     
       <div className="h-full bg-white flex flex-col relative w-full xl:w-[var(--list-width)] xl:min-w-[var(--list-width)] shrink-0" style={{ "--list-width": `${listWidth}px`, width: windowWidth >= 1280 ? `${listWidth}px` : "100%", maxWidth: windowWidth >= 1280 ? `${listWidth}px` : "100%" }}>
         <div className="flex xl:hidden items-center gap-3 p-4 border-b border-[#EAECF0] bg-slate-50/50 shrink-0">
           <button onClick={() => setIsMobileNavOpen(true)} className="p-2 hover:bg-slate-200 rounded-xl text-slate-600 transition-all"><Menu size={20} /></button>
           
-          {/* ✅ Fixed: Replaced static text placeholder string with the dynamic tracking label state node */}
+         
           <span className="text-sm font-bold text-slate-800 tracking-tight">{activeFolder}</span>
         </div>
 
@@ -184,12 +184,12 @@ export default function GmailView() {
         </div>
       </div>
       
-      {/* Panel 2 Resizer Bar */}
+     
       <div onMouseDown={() => { isResizingList.current = true; document.body.style.cursor = "col-resize"; }} className="hidden xl:flex w-1 bg-[#EAECF0] hover:bg-violet-400 cursor-col-resize transition-colors items-center justify-center group shrink-0 relative z-30">
         <div className="w-0.5 h-8 bg-slate-300 group-hover:bg-white rounded-full opacity-0 group-hover:opacity-100" />
       </div>
 
-      {/* Panel 3: Right Thread Content Message Viewer */}
+     
       <div className={`h-full bg-white fixed inset-0 z-50 transform transition-transform duration-300 xl:static xl:translate-x-0 xl:flex-1 overflow-hidden flex flex-col ${isMobileDetailOpen ? "translate-x-0" : "translate-x-full xl:translate-x-0"}`}>
         <div className="flex xl:hidden items-center p-3 border-b border-[#EAECF0] bg-white shrink-0">
           <button onClick={() => setIsMobileDetailOpen(false)} className="inline-flex items-center gap-1.5 text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 px-3 py-1.5 rounded-xl transition-all"><ArrowLeft size={14} /> Back to Inbox</button>

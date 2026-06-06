@@ -8,9 +8,9 @@ export default function CalendarHeader({
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-5 pb-5 border-b border-slate-200 bg-white p-4 rounded-2xl shadow-xs">
 
-      {/* Dynamic left side date banner box */}
+      
       <div className="flex items-center gap-4">
-        {/* ✅ This block dynamically updates to match the current selected day value directly */}
+       
         <div className="flex flex-col items-center justify-center border border-violet-100 rounded-xl bg-violet-50 p-2 min-w-[64px]">
           <span className="text-[10px] font-bold text-violet-700 uppercase">{shortMonthNames[month]}</span>
           <span className="text-xl font-bold">{currentDate.getDate()}</span>
@@ -32,8 +32,8 @@ export default function CalendarHeader({
           <input
             type="text"
             placeholder="Search child or staff..."
-            value={searchTerm} // 👈 Controlled input binding
-            onChange={(e) => setSearchTerm(e.target.value)} // 👈 Instant state mutator trigger
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)} 
             className="pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-violet-500 lg:w-40 w-48 transition-all"
           />
         </div>

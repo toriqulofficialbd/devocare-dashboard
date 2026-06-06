@@ -15,10 +15,10 @@ export default function MailNavigation({ activeFolder = "Inbox", onFolderSelect,
 
   return (
     <div className="h-full bg-white p-3 flex flex-col gap-1 select-none overflow-y-auto">
-      {/* Account Drop-down Select Module Block */}
+      
       <AccountSelector activeAccount="Amina Rahman" />
 
-      {/* Nav Link Item Iteration Stack wrapper */}
+     
       <div className="space-y-0.5 flex-1">
         {folders.map((folder, index) => (
           <MailNavigationItem
@@ -26,10 +26,10 @@ export default function MailNavigation({ activeFolder = "Inbox", onFolderSelect,
             icon={folder.icon}
             label={folder.label}
             count={folder.count}
-            isSelected={activeFolder === folder.label} // ✅ Correct boolean mapping evaluation loop
+            isSelected={activeFolder === folder.label} 
             onClick={() => {
               if (onFolderSelect) {
-                onFolderSelect(folder.label); // ✅ Restores live tab click operations instantly
+                onFolderSelect(folder.label); 
               }
             }}
           />

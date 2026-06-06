@@ -48,7 +48,7 @@ export default function ProfileAndSettings() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* বামদিকের কলাম: প্রোফাইল লাইভ প্রিভিউ */}
+       
         <div className="bg-white border border-[#EAECF0] rounded-2xl p-5 flex flex-col items-center text-center shadow-xs h-fit">
           <img src={avatar || "https://unsplash.com"} alt="Profile" className="h-20 w-20 rounded-full border border-slate-200 object-cover shadow-sm mb-3" />
           <h4 className="text-sm font-bold text-slate-900">{name || "Name"}</h4>
@@ -56,7 +56,7 @@ export default function ProfileAndSettings() {
           <p className="text-xs text-slate-400 mt-2">{user?.email}</p>
         </div>
 
-        {/* ডানদিকের কলাম: এডিটেবল ফরম */}
+      
         <div className="md:col-span-2 bg-white border border-[#EAECF0] rounded-2xl p-6 shadow-xs">
           <form onSubmit={handleSave} className="space-y-5">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 pb-2 border-b border-slate-50">
@@ -80,7 +80,7 @@ export default function ProfileAndSettings() {
               </div>
             </div>
 
-            {/* 👑 নতুন ট্রেন্ডি ডিভাইস ফাইল আপলোডার বাটন ইন্টারফেস */}
+          
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Profile Avatar Upload</label>
               <div className="mt-1 flex items-center justify-center border-2 border-dashed border-slate-200 hover:border-violet-400 rounded-xl p-5 bg-[#F9FAFB] transition-colors relative cursor-pointer group">

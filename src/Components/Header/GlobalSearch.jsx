@@ -18,9 +18,9 @@ export default function GlobalSearch() {
       <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
       <input
         type="text"
-        value={globalSearch || ""} // 👈 নিশ্চিত করা হলো যাতে কখনই undefined না হয়
+        value={globalSearch || ""} 
         onChange={(e) => {
-          // 👑 রিয়াল-টাইম ডাইনামিক ইভেন্ট বাবলিং ট্র্যাকার
+          
           setGlobalSearch(e.target.value);
         }}
         placeholder={getSearchPlaceholder()}

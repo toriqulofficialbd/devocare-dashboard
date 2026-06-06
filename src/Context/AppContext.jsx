@@ -3,7 +3,6 @@ import  { createContext, useContext, useState } from "react";
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
-  // Global Shared States Pipeline
   const [globalSearch, setGlobalSearch] = useState("");
   const [activeSubView, setActiveSubView] = useState("content"); // options: "content" | "profile"
   const [user, setUser] = useState({
@@ -28,7 +27,7 @@ export function AppProvider({ children }) {
     setGlobalSearch("");
     setActiveSubView("content");
     
-    // 👑 ট্রেন্ডি ফিক্স: সাইন-আউট হওয়ার সাথে সাথে ব্রাউজারের ইউআরএল বারকে রি-সেট করে মেইন রুটে "/" নিয়ে আসবে
+    
     window.history.pushState({}, "", "/"); 
   };
 

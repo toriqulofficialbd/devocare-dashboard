@@ -7,7 +7,7 @@ export default function AccountSelector({ activeAccount = "Amina Rahman" }) {
 
   return (
     <div className="px-2 py-1.5 mb-2 relative">
-      {/* Clickable Header Box Block */}
+      
       <div 
         onClick={() => setIsOpen(!isOpen)}
         className={`relative flex items-center justify-between w-full bg-white border rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-50 cursor-pointer transition-all ${
@@ -23,10 +23,10 @@ export default function AccountSelector({ activeAccount = "Amina Rahman" }) {
         <ChevronDown size={14} className={`text-slate-400 shrink-0 ml-1.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </div>
 
-      {/* 👑 Trendy Drop-down Menu Popover Layer */}
+     
       {isOpen && (
         <>
-          {/* Transparent click-away overlay track */}
+         
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           
           <div className="absolute left-2 right-2 top-12 mt-1 bg-white border border-[#EAECF0] rounded-xl shadow-xl z-50 p-1 space-y-0.5 animate-in fade-in slide-in-from-top-2 duration-150">

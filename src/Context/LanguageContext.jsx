@@ -9,10 +9,10 @@ const LanguageProvider = ({ children }) => {
   useEffect(() => {
     const fetchTranslations = async () => {
       try {
-        console.log("Fetching translations for:", language); // ✅ Check korar jonno
+        console.log("Fetching translations for:", language); 
         const response = await fetch(`/locales/${language}.json`);
         const data = await response.json();
-        console.log("Fetched Data:", data); // ✅ Check korar jonno
+        console.log("Fetched Data:", data); 
         setTranslations(data);
       } catch (error) {
         console.error("Error loading translation:", error);
@@ -20,10 +20,10 @@ const LanguageProvider = ({ children }) => {
     };
 
     if (language) {
-      fetchTranslations(); // ✅ `language` set হওয়ার পর `fetch` কল করবো
+      fetchTranslations(); 
     }
   }, [language]); 
-  // ✅ `language` পরিবর্তন হলেই নতুন `fetch` কল হবে
+  
   useEffect(() => {
     if (language === "bn") {
       document.title = "স্নেহনীড় ড্যাশবোর্ড ";

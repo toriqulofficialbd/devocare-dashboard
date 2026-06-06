@@ -16,7 +16,7 @@ export default function MonthDayCell({
 
   const [activeTouchCardId, setActiveTouchCardId] = useState(null);
 
-  // ১. মোবাইল স্ক্রিনে খালি জায়গায় ডেট রেঞ্জ সিলেক্ট করার ট্র্যাকার
+ 
   const handleTouchMoveGlobal = (e) => {
     if (activeTouchCardId || !handleMouseEnter || !e.touches || e.touches.length === 0) return;
     
@@ -30,7 +30,7 @@ export default function MonthDayCell({
     }
   };
 
-  // 📱 ২. মোবাইল টাচ স্ক্রিনে ইভেন্ট কার্ড মুভ করার নিখুঁত লজিক
+ 
   const handleCardTouchMove = (e) => {
     if (!activeTouchCardId || !e.touches || e.touches.length === 0) return;
     if (e.cancelable) e.preventDefault(); 
@@ -75,7 +75,7 @@ export default function MonthDayCell({
         isDaySelected ? "!bg-violet-50/40" : ""
       }`}
     >
-      {/* তারিখের গোল ব্যাজ */}
+      
       <div className="flex sm:justify-start justify-center mb-1 select-none shrink-0">
         <span className={`h-6 w-6 sm:h-6.5 sm:w-6.5 flex items-center justify-center rounded-full text-center text-xs font-semibold transition-all ${
           isMobileActive || isDaySelected
@@ -86,7 +86,7 @@ export default function MonthDayCell({
         </span>
       </div>
 
-      {/* 👑 জাদুকরী ফিক্স: ল্যাপটপ এবং মোবাইল দুই ভিউর কার্ড কন্টেইনার (overflow-hidden করা হয়েছে) */}
+     
       <div className="flex-1 space-y-1 overflow-hidden max-h-[75px] sm:max-h-[90px] w-full">
         {dayEvents.map(event => {
           const isThisCardDragging = activeTouchCardId === event.id;

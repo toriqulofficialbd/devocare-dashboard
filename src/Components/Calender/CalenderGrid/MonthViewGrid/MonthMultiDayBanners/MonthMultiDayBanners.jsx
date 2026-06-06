@@ -12,7 +12,7 @@ export default function MonthMultiDayBanners({
     typeof window !== "undefined" ? window.innerWidth < 640 : false
   );
 
-  // উইন্ডো রেসাইজ (Inspect / Zoom) লাইভ ট্র্যাকিং লুপ এফেক্ট
+  
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 640);
@@ -25,7 +25,7 @@ export default function MonthMultiDayBanners({
   }, []);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-30 pt-8 pl-1 pr-1">
+    <div className="absolute inset-0 pointer-events-none z-0 pt-8 pl-1 pr-1">
       {multiDayEvents.map((event, idx) => (
         <MultiDayEventCard
           key={event.id}

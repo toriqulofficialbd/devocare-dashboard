@@ -14,7 +14,7 @@ export default function MessageDetail({ email, onDelete, onArchive, onMarkUnread
     );
   }
 
-  // 👑 ট্রেন্ডি রিপ্লাই বাটন অ্যাকশন: ক্লিক করলে স্ক্রল করে নিচে নিয়ে ইনপুটে ফোকাস করবে
+  
   const handleReplyButtonClick = () => {
     if (textareaRef.current) {
       textareaRef.current.focus();
@@ -31,7 +31,7 @@ export default function MessageDetail({ email, onDelete, onArchive, onMarkUnread
 
   return (
     <div className="h-full bg-white flex flex-col overflow-hidden relative">
-      {/* টপ অ্যাকশন বার */}
+     
       <div className="h-14 border-b border-[#EAECF0] px-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 text-slate-500">
           <button onClick={() => onArchive(email.id)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors" title="Archive email"><Archive size={16} /></button>
@@ -39,13 +39,13 @@ export default function MessageDetail({ email, onDelete, onArchive, onMarkUnread
         </div>
         
         <div className="flex items-center gap-2 text-slate-500 relative">
-          {/* 👑 ১. রিপ্লাই বাটন অ্যাকশন কানেক্টেড */}
+          
           <button onClick={handleReplyButtonClick} className="p-2 hover:bg-slate-50 rounded-lg transition-colors" title="Reply to message"><CornerUpLeft size={16} /></button>
           
-          {/* 👑 ২. ৩-ডট মেনু বাটন অ্যাকশন কানেক্টেড */}
+         
           <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors" title="More options"><MoreVertical size={16} /></button>
           
-          {/* 👑 ৩-ডট মেনু ড্রপডাউন পপ-আপ উইন্ডো (Trendy UX) */}
+          
           {isDropdownOpen && (
             <div className="absolute right-0 top-10 w-44 bg-white border border-[#EAECF0] rounded-xl shadow-xl z-50 p-1 py-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
               <button 
@@ -86,7 +86,7 @@ export default function MessageDetail({ email, onDelete, onArchive, onMarkUnread
       <div className="p-4 border-t border-[#EAECF0] bg-white shrink-0">
         <form onSubmit={handleSendReply} className="border border-[#EAECF0] rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-4 focus-within:ring-violet-500/10 transition-all bg-[#F9FAFB]">
           <textarea
-            ref={textareaRef} // 👈 ফোকাস ট্র্যাক করার জন্য সংযুক্ত করা হয়েছে
+            ref={textareaRef} 
             rows={3}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}

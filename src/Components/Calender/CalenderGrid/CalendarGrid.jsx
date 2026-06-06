@@ -19,14 +19,14 @@ export default function CalendarGrid({
   return (
     <div className=" overflow-hidden w-full">
 
-      {/* 👑 ২. কন্ডিশনাল রেন্ডারিং লজিক: ড্রপডাউন অনুযায়ী সঠিক মডিউলটি স্ক্রিনে লোড হবে */}
+      
       {viewMode === "Day view" ? (
         <DayViewGrid
           events={events}
           currentYear={currentYear}
           currentMonth={currentMonth}
           currentDate={currentDate}
-          setCurrentDate={setCurrentDate} // 👑 পাসিং লাইভ ডেট মডিফায়ার
+          setCurrentDate={setCurrentDate} 
           handleMouseDown={handleMouseDown}
           handleMouseUp={handleMouseUp}
           setWeekDragHours={setWeekDragHours}
@@ -50,7 +50,7 @@ export default function CalendarGrid({
         />
       ) : (
         <>
-          {/* মাসের স্বাভাবিক গ্রিড লেআউট বার */}
+          
           <div className="grid grid-cols-7 border-b border-[#EAECF0] bg-white">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, idx) => (
               <div key={idx} className="py-2.5 text-center text-[11px] sm:text-xs font-semibold text-[#475467] tracking-wide">{day}</div>

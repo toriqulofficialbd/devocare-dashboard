@@ -45,7 +45,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, currentPath }
           }`}
         >
           <Mail className={`h-5 w-5 ${isActive("/gmail") ? "text-violet-700" : "text-slate-500"}`} />
-          Gmail Inbox
+          Gmail 
         </Link>
       </nav>
 
